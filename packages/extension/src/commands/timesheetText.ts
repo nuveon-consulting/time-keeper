@@ -117,7 +117,7 @@ async function pickLocalCalendarDay(): Promise<string | undefined> {
   items.push({ label: "Other date…", description: "Enter YYYY-MM-DD", ymd: null });
 
   const picked = await vscode.window.showQuickPick(items, {
-    title: "Time Keeper — timesheet date",
+    title: "Nuveon Time Keeper — timesheet date",
     placeHolder: "Choose the calendar day",
   });
   if (!picked) {

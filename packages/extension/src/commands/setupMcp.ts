@@ -89,7 +89,7 @@ async function pickRepoRootForUserMcp(): Promise<string | undefined> {
     canSelectFolders: true,
     canSelectMany: false,
     openLabel: "Select repository root",
-    title: "Time Keeper MCP — repository root",
+    title: "Nuveon Time Keeper MCP — repository root",
     defaultUri: vscode.workspace.workspaceFolders?.[0]?.uri,
   });
   if (!picked?.[0]) {
@@ -135,7 +135,7 @@ async function pickTarget(): Promise<McpFileTarget | undefined> {
       },
     ],
     {
-      title: "Time Keeper — MCP scope",
+      title: "Nuveon Time Keeper — MCP scope",
       placeHolder: "Use local for this repo only, or global for all projects",
     },
   );
@@ -180,6 +180,6 @@ export async function runSetupMcp(): Promise<void> {
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    void vscode.window.showErrorMessage(`Time Keeper MCP setup failed: ${msg}`);
+    void vscode.window.showErrorMessage(`Nuveon Time Keeper MCP setup failed: ${msg}`);
   }
 }

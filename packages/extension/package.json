@@ -1,8 +1,8 @@
 {
   "name": "nuveon-time-keeper",
-  "displayName": "Time Keeper",
+  "displayName": "Nuveon Time Keeper",
   "description": "Low-friction time tracking for Cursor and VS Code.",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "publisher": "NuveonConsultingPTYLTD",
   "license": "UNLICENSED",
   "icon": "media/logo.png",
@@ -33,38 +33,38 @@
     "commands": [
       {
         "command": "timeKeeper.openSummary",
-        "title": "Time Keeper: Open summary",
+        "title": "Nuveon Time Keeper: Open summary",
         "icon": "$(table)"
       },
       {
         "command": "timeKeeper.buildTimesheetText",
-        "title": "Time Keeper: Build timesheet text…",
+        "title": "Nuveon Time Keeper: Build timesheet text…",
         "icon": "$(file-text)"
       },
       {
         "command": "timeKeeper.setupMcp",
-        "title": "Time Keeper: Set up MCP…",
+        "title": "Nuveon Time Keeper: Set up MCP…",
         "icon": "$(server-process)"
       },
       {
         "command": "timeKeeper.startTask",
-        "title": "Time Keeper: Start…"
+        "title": "Nuveon Time Keeper: Start…"
       },
       {
         "command": "timeKeeper.stopTask",
-        "title": "Time Keeper: Stop"
+        "title": "Nuveon Time Keeper: Stop"
       },
       {
         "command": "timeKeeper.switchTask",
-        "title": "Time Keeper: Switch…"
+        "title": "Nuveon Time Keeper: Switch…"
       },
       {
         "command": "timeKeeper.resumePrevious",
-        "title": "Time Keeper: Resume previous"
+        "title": "Nuveon Time Keeper: Resume previous"
       },
       {
         "command": "timeKeeper.statusBarClick",
-        "title": "Time Keeper: Status bar menu"
+        "title": "Nuveon Time Keeper: Status bar menu"
       }
     ],
     "keybindings": [

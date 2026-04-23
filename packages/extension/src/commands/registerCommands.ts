@@ -103,7 +103,7 @@ export function registerCommands(
       ];
 
       const picked = await vscode.window.showQuickPick<ActionPick>(items, {
-        placeHolder: active ? "Time Keeper" : "Time Keeper — idle",
+        placeHolder: active ? "Nuveon Time Keeper" : "Nuveon Time Keeper — idle",
       });
       if (!picked) {
         return;

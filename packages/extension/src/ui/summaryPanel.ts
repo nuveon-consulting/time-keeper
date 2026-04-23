@@ -52,7 +52,7 @@ async function writeSegmentCsv(rows: SegmentRowJson[]): Promise<void> {
   }
   const defaultName = `nuveon-time-keeper-export-${new Date().toISOString().slice(0, 10)}.csv`;
   const uri = await vscode.window.showSaveDialog({
-    title: "Export Time Keeper summary",
+    title: "Export Nuveon Time Keeper summary",
     defaultUri: vscode.Uri.file(path.join(os.homedir(), defaultName)),
     filters: { CSV: ["csv"] },
     saveLabel: "Export",
@@ -105,10 +105,10 @@ function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
   <meta http-equiv="Content-Security-Policy" content="${csp}" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="${cssUri}" rel="stylesheet" />
-  <title>Time Keeper — Summary</title>
+  <title>Nuveon Time Keeper — Summary</title>
 </head>
 <body>
-  <h1>Time Keeper — Summary</h1>
+  <h1>Nuveon Time Keeper — Summary</h1>
   <p class="hint">Times use your local timezone. Duration for a running segment updates when data refreshes (*).</p>
   <div class="toolbar">
     <div class="row">
@@ -212,7 +212,7 @@ export class SummaryPanelController implements vscode.Disposable {
     }
     this.panel = vscode.window.createWebviewPanel(
       "timeKeeper.summaryPanel",
-      "Time Keeper — Summary",
+      "Nuveon Time Keeper — Summary",
       vscode.ViewColumn.One,
       { enableScripts: true, retainContextWhenHidden: true },
     );

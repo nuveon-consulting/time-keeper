@@ -10,7 +10,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const { service, corrupt } = await hydrateTimerService(store);
   if (corrupt) {
     void vscode.window.showWarningMessage(
-      "Time Keeper storage was unreadable or corrupt; started a fresh ledger.",
+      "Nuveon Time Keeper storage was unreadable or corrupt; started a fresh ledger.",
     );
   }
 

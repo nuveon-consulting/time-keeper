@@ -40,8 +40,8 @@ export class StatusBarController implements vscode.Disposable {
     const active = this.service.getActiveEntry();
     const task = this.service.getActiveTask();
     if (!active || !task) {
-      this.item.text = "$(watch) Time Keeper";
-      this.item.tooltip = "Time Keeper — click for actions";
+      this.item.text = "$(watch) Nuveon Time Keeper";
+      this.item.tooltip = "Nuveon Time Keeper — click for actions";
       this.item.show();
       return;
     }

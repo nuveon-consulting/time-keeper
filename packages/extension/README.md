@@ -1,6 +1,6 @@
-# Time Keeper
+# Nuveon Time Keeper
 
-**Time Keeper** helps you log what you are doing in **Visual Studio Code** or **Cursor** with minimal friction. You work in **segments**: each segment has a **short description**, a **start** time, and an **end** time (or it can still be **running**). Only **one** segment runs at a time.
+**Nuveon Time Keeper** helps you log what you are doing in **Visual Studio Code** or **Cursor** with minimal friction. You work in **segments**: each segment has a **short description**, a **start** time, and an **end** time (or it can still be **running**). Only **one** segment runs at a time.
 
 Your data is stored in the editor’s **global storage** for this extension (not inside your project folders).
 
@@ -8,11 +8,11 @@ Your data is stored in the editor’s **global storage** for this extension (not
 
 ## Quick start
 
-1. **Start timing** — Press `Ctrl+Shift+;` (Windows/Linux) or `Cmd+Shift+;` (macOS), or click **Time Keeper** in the **status bar** (bottom) and choose **Start…**. Pick a recent description or choose **New entry…** and type what you are doing.
+1. **Start timing** — Press `Ctrl+Shift+;` (Windows/Linux) or `Cmd+Shift+;` (macOS), or click **Nuveon Time Keeper** in the **status bar** (bottom) and choose **Start…**. Pick a recent description or choose **New entry…** and type what you are doing.
 2. **Stop** — `Ctrl+Shift+'` / `Cmd+Shift+'`, or use the status bar menu **Stop** while a segment is running.
-3. **See everything** — Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`), run **Time Keeper: Open summary**, and use the filters to explore past work.
+3. **See everything** — Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`), run **Nuveon Time Keeper: Open summary**, and use the filters to explore past work.
 
-You can change shortcuts under **File → Preferences → Keyboard Shortcuts** and search for `Time Keeper`.
+You can change shortcuts under **File → Preferences → Keyboard Shortcuts** and search for `Nuveon Time Keeper`.
 
 ---
 
@@ -20,7 +20,7 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 
 | State | What you see |
 |--------|----------------|
-| **Idle** | `Time Keeper` with a watch icon. |
+| **Idle** | `Nuveon Time Keeper` with a watch icon. |
 | **Running** | Watch icon, your **description** (truncated if long), and a **live** timer (`mm:ss`). |
 
 **Click** the status bar item to open a small menu:
@@ -36,12 +36,12 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 
 | Command | What it does |
 |---------|----------------|
-| **Time Keeper: Start…** | Opens a picker: **recent descriptions** (as templates) or **New entry…** then asks what you are doing. Starts a **new** segment. If something was already running, it is **stopped** first, then the new segment starts. |
-| **Time Keeper: Stop** | Ends the **current** segment and records the end time. |
-| **Time Keeper: Switch…** | Same as Start: pick what to do next; the current segment **stops** and a **new** one starts with the new description. |
-| **Time Keeper: Resume previous** | When **nothing** is running, starts a **new** segment using the **last stopped** description. If a segment is already running, you are asked to stop it first. |
-| **Time Keeper: Open summary** | Opens the **summary** page in the main editor area (see next section). |
-| **Time Keeper: Status bar menu** | Same choices as **clicking** the status bar (mostly for rebinding keys). |
+| **Nuveon Time Keeper: Start…** | Opens a picker: **recent descriptions** (as templates) or **New entry…** then asks what you are doing. Starts a **new** segment. If something was already running, it is **stopped** first, then the new segment starts. |
+| **Nuveon Time Keeper: Stop** | Ends the **current** segment and records the end time. |
+| **Nuveon Time Keeper: Switch…** | Same as Start: pick what to do next; the current segment **stops** and a **new** one starts with the new description. |
+| **Nuveon Time Keeper: Resume previous** | When **nothing** is running, starts a **new** segment using the **last stopped** description. If a segment is already running, you are asked to stop it first. |
+| **Nuveon Time Keeper: Open summary** | Opens the **summary** page in the main editor area (see next section). |
+| **Nuveon Time Keeper: Status bar menu** | Same choices as **clicking** the status bar (mostly for rebinding keys). |
 
 ---
 
@@ -59,7 +59,7 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 
 ## Summary (table and filters)
 
-**Time Keeper: Open summary** opens a **table** of every logged **segment** with these columns:
+**Nuveon Time Keeper: Open summary** opens a **table** of every logged **segment** with these columns:
 
 | Column | Meaning |
 |--------|---------|
@@ -96,7 +96,7 @@ To export **everything**, clear or widen the filters first, then export.
 
 ## How segments and descriptions work
 
-- Each time you **start** (or **switch**), Time Keeper creates a **new** segment and a **new** internal id, even if the **description** matches something you used before.
+- Each time you **start** (or **switch**), Nuveon Time Keeper creates a **new** segment and a **new** internal id, even if the **description** matches something you used before.
 - **Recent** entries in the picker are **shortcuts**: they copy the old text; they do not “continue” the old row.
 - **Resume previous** copies the **last stopped** description into a **new** segment so you can pick up the same kind of work again.
 
