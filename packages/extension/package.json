@@ -2,7 +2,7 @@
   "name": "time-keeper",
   "displayName": "Time Keeper",
   "description": "Low-friction time tracking for Cursor and VS Code.",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "publisher": "nuveon",
   "license": "UNLICENSED",
   "icon": "media/logo.png",
@@ -25,7 +25,8 @@
     "onCommand:timeKeeper.resumePrevious",
     "onCommand:timeKeeper.statusBarClick",
     "onCommand:timeKeeper.openSummary",
-    "onCommand:timeKeeper.buildTimesheetText"
+    "onCommand:timeKeeper.buildTimesheetText",
+    "onCommand:timeKeeper.setupMcp"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -39,6 +40,11 @@
         "command": "timeKeeper.buildTimesheetText",
         "title": "Time Keeper: Build timesheet text…",
         "icon": "$(file-text)"
+      },
+      {
+        "command": "timeKeeper.setupMcp",
+        "title": "Time Keeper: Set up MCP…",
+        "icon": "$(server-process)"
       },
       {
         "command": "timeKeeper.startTask",

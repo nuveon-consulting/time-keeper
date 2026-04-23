@@ -3,6 +3,7 @@ import { pickSegment } from "./pickTask";
 import type { TimerService } from "../timer/timerService";
 import type { SummaryPanelController } from "../ui/summaryPanel";
 import { runBuildTimesheetText } from "./timesheetText";
+import { runSetupMcp } from "./setupMcp";
 
 export function registerCommands(
   service: TimerService,
@@ -19,6 +20,12 @@ export function registerCommands(
   disposables.push(
     vscode.commands.registerCommand("timeKeeper.buildTimesheetText", async () => {
       await runBuildTimesheetText(service);
+    }),
+  );
+
+  disposables.push(
+    vscode.commands.registerCommand("timeKeeper.setupMcp", async () => {
+      await runSetupMcp();
     }),
   );
 
@@ -70,7 +77,14 @@ export function registerCommands(
     vscode.commands.registerCommand("timeKeeper.statusBarClick", async () => {
       const active = service.getActiveEntry();
 
-      type StatusBarAction = "summary" | "timesheet" | "stop" | "switch" | "resume" | "start";
+      type StatusBarAction =
+        | "summary"
+        | "timesheet"
+        | "setupMcp"
+        | "stop"
+        | "switch"
+        | "resume"
+        | "start";
       type ActionPick = vscode.QuickPickItem & { readonly action: StatusBarAction };
       const tail: ActionPick[] = active
         ? [
@@ -84,6 +98,7 @@ export function registerCommands(
       const items: ActionPick[] = [
         { label: "$(table) Open summary…", action: "summary" },
         { label: "$(file-text) Build timesheet text…", action: "timesheet" },
+        { label: "$(server-process) Set up MCP…", action: "setupMcp" },
         ...tail,
       ];
 
@@ -99,6 +114,9 @@ export function registerCommands(
           break;
         case "timesheet":
           await vscode.commands.executeCommand("timeKeeper.buildTimesheetText");
+          break;
+        case "setupMcp":
+          await vscode.commands.executeCommand("timeKeeper.setupMcp");
           break;
         case "stop":
           await vscode.commands.executeCommand("timeKeeper.stopTask");
