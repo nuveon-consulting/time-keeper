@@ -3,6 +3,7 @@ import { JsonlStore } from "./storage/jsonlStore";
 import { hydrateTimerService } from "./timer/timerService";
 import { registerCommands } from "./commands/registerCommands";
 import { StatusBarController } from "./ui/statusBar";
+import { SummaryPanelController } from "./ui/summaryPanel";
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const store = new JsonlStore(context.globalStorageUri);
@@ -14,8 +15,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   }
 
   const statusBar = new StatusBarController(service);
-  context.subscriptions.push(statusBar, service);
-  for (const d of registerCommands(service)) {
+  const summaryPanel = new SummaryPanelController(context.extensionUri, service);
+  context.subscriptions.push(statusBar, service, summaryPanel);
+  for (const d of registerCommands(service, summaryPanel)) {
     context.subscriptions.push(d);
   }
 }

@@ -4,7 +4,7 @@ This document describes how **time entries** are stored, how they might be **agg
 
 ## v1 (IDE extension): no local server database
 
-The VS Code / Cursor extension runs in an **extension host** with no guarantee of a local PostgreSQL or MongoDB instance. **v1 persistence** is implemented as a **single versioned JSON snapshot** (`time-keeper-state.v1.json`) under `ExtensionContext.globalStorageUri` (atomic temp + rename), as described in [architecture.md](architecture.md).
+The VS Code / Cursor extension runs in an **extension host** with no guarantee of a local PostgreSQL or MongoDB instance. Persistence is a **single JSON snapshot** (`time-keeper-state.v1.json` filename; **`version` field 2** inside the file) under `ExtensionContext.globalStorageUri` (atomic temp + rename). Older **`version: 1`** documents (title + optional description) are **migrated on load** to description-only tasks. See [architecture.md](architecture.md).
 
 Other **single-machine** options that remain valid if the implementation changes:
 

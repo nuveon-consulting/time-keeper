@@ -1,9 +1,11 @@
-export const STATE_FILE_VERSION = 1 as const;
+/** Persisted document version; v2 removes `title` in favor of a single `description` per task. */
+export const STATE_FILE_VERSION = 2 as const;
+export const STATE_FILE_VERSION_LEGACY = 1 as const;
 
 export interface Task {
   id: string;
-  title: string;
-  description?: string;
+  /** What the user is working on (only user-visible label). */
+  description: string;
 }
 
 export interface TimeEntry {
@@ -32,8 +34,7 @@ export function timeEntryDurationMs(entry: TimeEntry): number | null {
 
 export interface LastStoppedTask {
   taskId: string;
-  title: string;
-  description?: string;
+  description: string;
 }
 
 export interface PersistedState {

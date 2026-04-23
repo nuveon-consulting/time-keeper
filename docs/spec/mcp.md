@@ -22,7 +22,7 @@ Names are illustrative until implementation ships; each tool should return struc
 | Stop | End the active interval; refresh **resume previous** target. |
 | Switch | Stop current (if any) and start the named task. |
 | Resume | Resume last stopped task when idle; error if already running or no previous. |
-| Observe | Return active task title, start time, elapsed summary, and idle/running state. |
+| Observe | Return active segment **description**, start time, elapsed summary, and idle/running state. |
 
 Optional later: list recent tasks or entries for richer agent context (still read-only or clearly scoped writes).
 
@@ -31,7 +31,7 @@ Optional later: list recent tasks or entries for richer agent context (still rea
 - **Local-first:** Prefer **stdio** MCP or a **localhost-only** transport; do not require cloud credentials for core timer control.
 - **No broad filesystem access** beyond the agreed state file path (and any explicit user-configured paths).
 - **Secrets:** Timer MCP does not embed STT or cloud API keys; if future tools call external services, follow [AGENTS.md](../../AGENTS.md) secret handling.
-- **Telemetry:** Off by default; no silent exfiltration of task titles.
+- **Telemetry:** Off by default; no silent exfiltration of task descriptions.
 
 ## Out of scope (MCP-specific)
 

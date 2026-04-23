@@ -26,7 +26,7 @@ stateDiagram_v2
 ```
 
 - **`switchTask` / `startTask`:** close the running `TimeEntry` (`end = now`), then append a **new `Task`** (new UUID) and a **new `TimeEntry`** with `start = now`, `end = null`. No concurrent open segments; each segment is an independent start/stop interval.
-- **`resumePrevious`** (idle only): creates a **new `Task`** (`id` = new UUID) copying **title and description** from the **last stopped** task snapshot, then appends a **new `TimeEntry`** with `start = now`, `end = null`. Each **completed** segment has **duration** = `Date.parse(end) - Date.parse(start)` (see `timeEntryDurationMs` in extension types). Edge cases: no `lastStopped` → no-op; missing `Task` row still resumes from `lastStopped.title` / optional `description` on disk.
+- **`resumePrevious`** (idle only): creates a **new `Task`** (`id` = new UUID) copying **`lastStopped.description`**, then appends a **new `TimeEntry`** with `start = now`, `end = null`. Each **completed** segment has **duration** = `Date.parse(end) - Date.parse(start)` (see `timeEntryDurationMs`). Edge cases: no `lastStopped` → no-op; missing `Task` row still resumes from `lastStopped.description` on disk.
 
 ## Clock semantics
 
@@ -37,7 +37,7 @@ stateDiagram_v2
 
 **Chosen format:** single versioned JSON snapshot **`time-keeper-state.v1.json`** under `ExtensionContext.globalStorageUri`, written with **temp file + rename** for atomic replace.
 
-- **Schema** (`PersistedState`): `version: 1`, `tasks` map (`id` → `Task` with `title` / optional `description`), `entries` array (`TimeEntry` with `start`, `end: null` while running), `lastStopped` (`taskId`, `title`, optional `description`) for **resume previous** (new task id + new entry each resume).
+- **Schema** (`PersistedState`): `version: 2` (`version: 1` files are migrated on load), `tasks` map (`id` → `Task` with **`description` only**), `entries` array (`TimeEntry` with `start`, `end: null` while running), `lastStopped` (`taskId`, `description`). **Summary:** command **`timeKeeper.openSummary`** opens an **editor-area webview** with a **table** of segments (start, end, duration, description) and **client-side filters** (description substring, duration min/max seconds, start/end time modes: any, calendar day, inclusive day range, or between two local date-times). Running rows refresh about once per second. **Export visible rows to CSV** sends filtered rows from the webview to the extension host, then **`showSaveDialog`** + **`workspace.fs.writeFile`** (UTF-8 with BOM, RFC-style escaping for commas/quotes/newlines).
 - **Module:** [`packages/extension/src/storage/jsonlStore.ts`](../../packages/extension/src/storage/jsonlStore.ts) (`JsonlStore` class — name retained from planning; implementation is snapshot JSON, not line-delimited JSONL).
 
 **Alternatives for later:** JSONL append-only or **SQLite** ([persistence.md](persistence.md)) if query/reporting needs grow.
@@ -57,9 +57,11 @@ Keep files small and testable:
 - `extension.ts` — activate/deactivate wiring
 - `commands/*` — command handlers
 - `timer/*` — state machine + persistence port
-- `storage/jsonlStore.ts` — load/save persisted state
+- `storage/jsonlStore.ts` — load/save persisted state (v1 → v2 migration)
 - `speech/*` — capture + provider adapter (stub README only)
 - `ui/statusBar.ts` — status bar item(s)
+- `ui/summaryPanel.ts` — Summary **webview panel** (table + push updates)
+- `media/summaryPanel.{css,js}` — webview UI for filters and grid
 
 Adjust names to match implementation.
 

@@ -55,20 +55,20 @@ export class TimerService implements vscode.Disposable {
 
   /**
    * Closes any running segment, then starts a **new** `Task` (new id) and a **new** `TimeEntry`
-   * with a fresh `start`. No concurrent segments; each segment has its own start/stop pair.
+   * with a fresh `start`. No concurrent segments.
    */
-  async startTask(title: string, description?: string): Promise<void> {
-    const trimmed = title.trim();
+  async startTask(description: string): Promise<void> {
+    const trimmed = description.trim();
     if (!trimmed) {
       return;
     }
     await this.closeActiveIfAny();
-    this.appendRunningSegment(trimmed, description);
+    this.appendRunningSegment(trimmed);
     await this.persist();
   }
 
-  async switchTask(title: string, description?: string): Promise<void> {
-    await this.startTask(title, description);
+  async switchTask(description: string): Promise<void> {
+    await this.startTask(description);
   }
 
   async stopTask(): Promise<boolean> {
@@ -81,10 +81,7 @@ export class TimerService implements vscode.Disposable {
     if (task) {
       this.state.lastStopped = {
         taskId: task.id,
-        title: task.title,
-        ...(task.description !== undefined && task.description.length > 0
-          ? { description: task.description }
-          : {}),
+        description: task.description,
       };
     }
     await this.persist();
@@ -92,8 +89,7 @@ export class TimerService implements vscode.Disposable {
   }
 
   /**
-   * Starts a **new** `Task` (new id) with the same title/description as the last stopped work item,
-   * and a new `TimeEntry` with a fresh `start`. Duration for each segment is `end - start` once stopped.
+   * Starts a **new** `Task` (new id) with the same description as the last stopped segment.
    */
   async resumePrevious(): Promise<boolean> {
     if (this.getActiveEntry()) {
@@ -104,9 +100,8 @@ export class TimerService implements vscode.Disposable {
       return false;
     }
     const source = this.state.tasks[ls.taskId];
-    const title = source?.title ?? ls.title;
     const description = source?.description ?? ls.description;
-    this.appendRunningSegment(title, description);
+    this.appendRunningSegment(description);
     await this.persist();
     return true;
   }
@@ -121,25 +116,18 @@ export class TimerService implements vscode.Disposable {
     if (task) {
       this.state.lastStopped = {
         taskId: task.id,
-        title: task.title,
-        ...(task.description !== undefined && task.description.length > 0
-          ? { description: task.description }
-          : {}),
+        description: task.description,
       };
     }
     await this.persist();
   }
 
   /** New `Task` row + new running `TimeEntry`; caller persists. */
-  private appendRunningSegment(title: string, description?: string): void {
+  private appendRunningSegment(description: string): void {
     const task: Task = {
       id: randomUUID(),
-      title,
+      description: description.trim(),
     };
-    const d = description?.trim();
-    if (d !== undefined && d.length > 0) {
-      task.description = d;
-    }
     this.state.tasks[task.id] = task;
     const entry: TimeEntry = {
       id: randomUUID(),
@@ -156,7 +144,6 @@ export class TimerService implements vscode.Disposable {
       return s;
     }
     const sorted = [...running].sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
-    const keep = sorted[sorted.length - 1];
     for (const e of sorted.slice(0, -1)) {
       e.end = e.start;
     }

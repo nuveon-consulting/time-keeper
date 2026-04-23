@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="57.246mm"
+   height="57.246mm"
+   viewBox="8.84268 1.53846 57.24579 57.24579"
+   preserveAspectRatio="xMidYMid meet"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="logo.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="false"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:clip-to-page="false"
+     inkscape:zoom="1.629458"
+     inkscape:cx="133.17312"
+     inkscape:cy="126.11556"
+     inkscape:window-width="1392"
+     inkscape:window-height="1212"
+     inkscape:window-x="65"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g59" />
+  <defs
+     id="defs1">
+    <rect
+       x="230.75159"
+       y="802.10724"
+       width="283.52985"
+       height="119.67169"
+       id="rect3" />
+    <rect
+       x="360.24249"
+       y="714.34796"
+       width="68.734512"
+       height="18.41103"
+       id="rect2" />
+    <rect
+       x="230.75159"
+       y="802.10724"
+       width="283.52985"
+       height="119.67169"
+       id="rect3-0" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g60"
+       transform="matrix(0.26458333,0,0,0.26458333,-27.291767,-71.4031)">
+      <g
+         id="g59">
+        <g
+           id="g3">
+          <g
+             id="g33"
+             transform="matrix(1.877098,0,0,1.8652505,-694.20982,-1106.2235)">
+            <path
+               class="cls-7"
+               d="m 475.53,824.95 c 6.92,-18.01 25.07,-22.85 33.17,-36.89 4.67,-8.1 9.22,-17.97 -3.16,-38.8 -3.21,-5.18 -5.31,-8.39 -5.31,-8.39 0,0 -3.57,5.45 -8.51,13.61 -0.29,0.61 -0.54,1.12 -0.74,1.48 -9.29,17.19 6.93,26.28 1.32,35.27 -2.69,4.31 -7.25,4.4 -10.1,2.06 -2.88,-2.37 -4.52,-7.6 -5.18,-12.95 -7.79,14.84 -14.54,30.25 -14.54,39.06 0,10.83 4.57,20.59 11.88,27.47 -2.01,-6.43 -1.81,-14.21 1.15,-21.93 z"
+               id="path32"
+               style="fill:#f7941d" />
+            <path
+               class="cls-1"
+               d="m 536.7,811.36 c -0.38,6.7 -2.48,13.01 -7.13,18.58 -2.82,3.38 -9.41,9.94 -15.21,5.83 -3.21,-2.27 -2.53,-6.82 -0.53,-9.7 3.17,-4.59 9.53,-8.36 12.29,-14.73 4.27,-9.85 3.48,-18.22 -1.92,-29.32 -0.21,-0.42 -4.83,-9.24 -6.99,-13.05 4.27,30.36 -28.43,40.2 -34.88,57.19 -3.4,8.98 -2.71,17.58 4.27,24.17 3.16,2.99 8.94,7.3 18.96,6.42 18.31,-2.59 32.4,-18.32 32.4,-37.35 0,-2.28 -0.45,-5 -1.26,-8.04 z"
+               id="path33"
+               style="fill:#f15a29" />
+          </g>
+        </g>
+      </g>
+    </g>
+    <!-- Time Keeper extension mark: stopwatch in bottom-left (viewBox space) -->
+    <g
+       id="timeKeeperTimerBadge"
+       aria-label="Time tracking"
+       fill="none"
+       stroke-linecap="round"
+       stroke-linejoin="round">
+      <!-- crown -->
+      <rect
+         x="23.05"
+         y="43.85"
+         width="2.5"
+         height="3.1"
+         rx="0.65"
+         fill="#fffdf9"
+         stroke="#c94c12"
+         stroke-width="0.45" />
+      <!-- face -->
+      <circle
+         cx="24.3"
+         cy="51.35"
+         r="5.35"
+         fill="#fffdf9"
+         stroke="#c94c12"
+         stroke-width="0.75" />
+      <!-- subtle 12 / 3 / 6 / 9 ticks -->
+      <line x1="24.3" y1="46.35" x2="24.3" y2="47.05" stroke="#e8b89a" stroke-width="0.45" />
+      <line x1="29.35" y1="51.35" x2="28.65" y2="51.35" stroke="#e8b89a" stroke-width="0.45" />
+      <line x1="24.3" y1="56.35" x2="24.3" y2="55.65" stroke="#e8b89a" stroke-width="0.45" />
+      <line x1="19.25" y1="51.35" x2="19.95" y2="51.35" stroke="#e8b89a" stroke-width="0.45" />
+      <!-- minute hand -->
+      <line x1="24.3" y1="51.35" x2="24.3" y2="47.55" stroke="#374151" stroke-width="0.95" />
+      <!-- hour hand (brand) -->
+      <line x1="24.3" y1="51.35" x2="27.35" y2="53.55" stroke="#f15a29" stroke-width="1" />
+      <!-- center cap -->
+      <circle cx="24.3" cy="51.35" r="0.85" fill="#f7941d" stroke="#c94c12" stroke-width="0.25" />
+    </g>
+  </g>
+</svg>

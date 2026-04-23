@@ -19,7 +19,7 @@ description: >-
 2. Read [docs/spec/persistence.md](../../../docs/spec/persistence.md) for v1 vs local DB vs remote sync boundaries.
 3. Read [docs/spec/product.md](../../../docs/spec/product.md) for entities and user expectations.
 4. Prefer **monotonic clock** (`performance.now()` / `hrtime`) for **elapsed duration** while running; store **wall-clock timestamps** for start/stop boundaries for human reports.
-5. **Segments:** at most one `TimeEntry` with `end: null`. **Start**, **switch**, and **resume previous** each create a **new `Task` row** (new id) and a **new `TimeEntry`**; `lastStopped` captures title/description for resume only. **Duration** = `end − start` when stopped.
+5. **Segments:** at most one `TimeEntry` with `end: null`. **Start**, **switch**, and **resume previous** each create a **new `Task`** (`description` only, new id) and a **new `TimeEntry`**; `lastStopped` holds `taskId` + `description` for resume. **Duration** = `end − start` when stopped. Persisted **v1** files (title + optional description) migrate to **v2** on load.
 6. Schema changes: document migration approach (SQLite migrations vs JSONL versioning) in [architecture.md](../../../docs/spec/architecture.md); for sync or local server storage, update [persistence.md](../../../docs/spec/persistence.md) before shipping breaking changes.
 
 ## Guardrails

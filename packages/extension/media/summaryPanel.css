@@ -1,0 +1,122 @@
+:root {
+  color: var(--vscode-editor-foreground);
+  background: var(--vscode-editor-background);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 12px;
+}
+
+h1 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.hint {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  color: var(--vscode-descriptionForeground);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: var(--vscode-sideBar-background);
+  border: 1px solid var(--vscode-widget-border);
+  border-radius: 4px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.row label {
+  min-width: 7rem;
+  font-size: 0.85rem;
+  color: var(--vscode-descriptionForeground);
+}
+
+.row input[type="text"],
+.row input[type="number"],
+.row input[type="date"],
+.row input[type="datetime-local"],
+.row select {
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 2px;
+  padding: 4px 6px;
+}
+
+.row .grow {
+  flex: 1;
+  min-width: 140px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--vscode-widget-border);
+}
+
+th {
+  background: var(--vscode-editor-lineHighlightBackground);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+tr:hover td {
+  background: var(--vscode-list-hoverBackground);
+}
+
+#meta {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--vscode-descriptionForeground);
+}
+
+.desc-cell {
+  max-width: 36rem;
+  word-break: break-word;
+}
+
+.actions button {
+  padding: 6px 12px;
+  cursor: pointer;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: 1px solid var(--vscode-button-border, transparent);
+  border-radius: 2px;
+  font-size: var(--vscode-font-size);
+}
+
+.actions button:hover {
+  background: var(--vscode-button-hoverBackground);
+}

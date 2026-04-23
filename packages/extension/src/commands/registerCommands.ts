@@ -1,16 +1,34 @@
 import * as vscode from "vscode";
 import { pickSegment } from "./pickTask";
 import type { TimerService } from "../timer/timerService";
-export function registerCommands(service: TimerService): vscode.Disposable[] {
+import type { SummaryPanelController } from "../ui/summaryPanel";
+import { runBuildTimesheetText } from "./timesheetText";
+
+export function registerCommands(
+  service: TimerService,
+  summaryPanel: SummaryPanelController,
+): vscode.Disposable[] {
   const disposables: vscode.Disposable[] = [];
 
   disposables.push(
+    vscode.commands.registerCommand("timeKeeper.openSummary", () => {
+      summaryPanel.open();
+    }),
+  );
+
+  disposables.push(
+    vscode.commands.registerCommand("timeKeeper.buildTimesheetText", async () => {
+      await runBuildTimesheetText(service);
+    }),
+  );
+
+  disposables.push(
     vscode.commands.registerCommand("timeKeeper.startTask", async () => {
-      const seg = await pickSegment(service, "Start or switch task");
-      if (!seg?.title.trim()) {
+      const seg = await pickSegment(service, "Start or switch work");
+      if (!seg?.description.trim()) {
         return;
       }
-      await service.startTask(seg.title.trim(), seg.description);
+      await service.startTask(seg.description.trim());
     }),
   );
 
@@ -18,18 +36,18 @@ export function registerCommands(service: TimerService): vscode.Disposable[] {
     vscode.commands.registerCommand("timeKeeper.stopTask", async () => {
       const stopped = await service.stopTask();
       if (!stopped) {
-        void vscode.window.showInformationMessage("No active task to stop.");
+        void vscode.window.showInformationMessage("No active segment to stop.");
       }
     }),
   );
 
   disposables.push(
     vscode.commands.registerCommand("timeKeeper.switchTask", async () => {
-      const seg = await pickSegment(service, "Switch to task");
-      if (!seg?.title.trim()) {
+      const seg = await pickSegment(service, "Switch to different work");
+      if (!seg?.description.trim()) {
         return;
       }
-      await service.switchTask(seg.title.trim(), seg.description);
+      await service.switchTask(seg.description.trim());
     }),
   );
 
@@ -37,13 +55,13 @@ export function registerCommands(service: TimerService): vscode.Disposable[] {
     vscode.commands.registerCommand("timeKeeper.resumePrevious", async () => {
       if (service.getActiveEntry()) {
         void vscode.window.showInformationMessage(
-          "A task is already running. Stop it before resuming the previous task.",
+          "A segment is already running. Stop it before resuming the previous one.",
         );
         return;
       }
       const ok = await service.resumePrevious();
       if (!ok) {
-        void vscode.window.showInformationMessage("No previous task to resume.");
+        void vscode.window.showInformationMessage("No previous segment to resume.");
       }
     }),
   );
@@ -52,16 +70,22 @@ export function registerCommands(service: TimerService): vscode.Disposable[] {
     vscode.commands.registerCommand("timeKeeper.statusBarClick", async () => {
       const active = service.getActiveEntry();
 
-      type ActionPick = vscode.QuickPickItem & { readonly action: string };
-      const items: ActionPick[] = active
+      type StatusBarAction = "summary" | "timesheet" | "stop" | "switch" | "resume" | "start";
+      type ActionPick = vscode.QuickPickItem & { readonly action: StatusBarAction };
+      const tail: ActionPick[] = active
         ? [
-            { label: "$(debug-stop) Stop task", action: "stop" },
-            { label: "$(arrow-swap) Switch task…", action: "switch" },
+            { label: "$(debug-stop) Stop", action: "stop" },
+            { label: "$(arrow-swap) Switch…", action: "switch" },
           ]
         : [
-            { label: "$(play) Start task…", action: "start" },
-            { label: "$(history) Resume previous task", action: "resume" },
+            { label: "$(play) Start…", action: "start" },
+            { label: "$(history) Resume previous", action: "resume" },
           ];
+      const items: ActionPick[] = [
+        { label: "$(table) Open summary…", action: "summary" },
+        { label: "$(file-text) Build timesheet text…", action: "timesheet" },
+        ...tail,
+      ];
 
       const picked = await vscode.window.showQuickPick<ActionPick>(items, {
         placeHolder: active ? "Time Keeper" : "Time Keeper — idle",
@@ -70,6 +94,12 @@ export function registerCommands(service: TimerService): vscode.Disposable[] {
         return;
       }
       switch (picked.action) {
+        case "summary":
+          await vscode.commands.executeCommand("timeKeeper.openSummary");
+          break;
+        case "timesheet":
+          await vscode.commands.executeCommand("timeKeeper.buildTimesheetText");
+          break;
         case "stop":
           await vscode.commands.executeCommand("timeKeeper.stopTask");
           break;
@@ -82,8 +112,11 @@ export function registerCommands(service: TimerService): vscode.Disposable[] {
         case "start":
           await vscode.commands.executeCommand("timeKeeper.startTask");
           break;
-        default:
+        default: {
+          const _exhaustive: never = picked.action;
+          void _exhaustive;
           break;
+        }
       }
     }),
   );

@@ -47,8 +47,8 @@ export class StatusBarController implements vscode.Disposable {
     }
     const startMs = Date.parse(active.start);
     const update = (): void => {
-      this.item.text = `$(watch) ${truncate(task.title, 28)} ${formatElapsed(startMs)}`;
-      this.item.tooltip = `${task.title} — running`;
+      this.item.text = `$(watch) ${truncate(task.description, 28)} ${formatElapsed(startMs)}`;
+      this.item.tooltip = `${task.description} — running`;
       this.item.show();
     };
     update();

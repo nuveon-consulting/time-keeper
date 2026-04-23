@@ -3,6 +3,7 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import {
   STATE_FILE_VERSION,
+  STATE_FILE_VERSION_LEGACY,
   emptyState,
   type LastStoppedTask,
   type PersistedState,
@@ -15,8 +16,8 @@ export const STATE_FILE_NAME = "time-keeper-state.v1.json";
 
 /**
  * Loads and saves persisted timer state under `globalStorageUri`.
- * v1 uses a single versioned JSON file with atomic temp+rename writes (not line-delimited JSONL)
- * so running entries can be ended in place reliably.
+ * Uses a single versioned JSON file with atomic temp+rename writes.
+ * Version **1** files (title + optional description) are migrated to **2** (description only) on load.
  */
 export class JsonlStore {
   private readonly filePath: string;
@@ -81,9 +82,17 @@ function normalizeState(parsed: unknown): PersistedState | null {
     return null;
   }
   const o = parsed as Record<string, unknown>;
-  if (o.version !== STATE_FILE_VERSION) {
-    return null;
+  const ver = o.version;
+  if (ver === STATE_FILE_VERSION_LEGACY) {
+    return migrateFromV1(o);
   }
+  if (ver === STATE_FILE_VERSION) {
+    return parseV2State(o);
+  }
+  return null;
+}
+
+function parseV2State(o: Record<string, unknown>): PersistedState | null {
   if (typeof o.tasks !== "object" || o.tasks === null || Array.isArray(o.tasks)) {
     return null;
   }
@@ -92,7 +101,7 @@ function normalizeState(parsed: unknown): PersistedState | null {
   }
   const tasks: Record<string, Task> = {};
   for (const [id, t] of Object.entries(o.tasks as Record<string, unknown>)) {
-    const task = asTask(id, t);
+    const task = asTaskV2(id, t);
     if (task) {
       tasks[id] = task;
     }
@@ -106,7 +115,7 @@ function normalizeState(parsed: unknown): PersistedState | null {
   }
   let lastStopped: PersistedState["lastStopped"] = null;
   if (o.lastStopped !== null && o.lastStopped !== undefined) {
-    const ls = asLastStopped(o.lastStopped);
+    const ls = asLastStoppedV2(o.lastStopped);
     if (ls) {
       lastStopped = ls;
     }
@@ -119,19 +128,85 @@ function normalizeState(parsed: unknown): PersistedState | null {
   };
 }
 
-function asTask(id: string, v: unknown): Task | null {
+function migrateFromV1(o: Record<string, unknown>): PersistedState | null {
+  if (typeof o.tasks !== "object" || o.tasks === null || Array.isArray(o.tasks)) {
+    return null;
+  }
+  if (!Array.isArray(o.entries)) {
+    return null;
+  }
+  const tasks: Record<string, Task> = {};
+  for (const [id, t] of Object.entries(o.tasks as Record<string, unknown>)) {
+    const task = migrateTaskFromV1(id, t);
+    if (task) {
+      tasks[id] = task;
+    }
+  }
+  const entries: TimeEntry[] = [];
+  for (const item of o.entries) {
+    const e = asEntry(item);
+    if (e) {
+      entries.push(e);
+    }
+  }
+  let lastStopped: PersistedState["lastStopped"] = null;
+  if (o.lastStopped !== null && o.lastStopped !== undefined) {
+    lastStopped = migrateLastStoppedFromV1(o.lastStopped);
+  }
+  return {
+    version: STATE_FILE_VERSION,
+    tasks,
+    entries,
+    lastStopped,
+  };
+}
+
+function migrateTaskFromV1(id: string, v: unknown): Task | null {
   if (!v || typeof v !== "object") {
     return null;
   }
   const t = v as Record<string, unknown>;
-  if (typeof t.title !== "string" || t.title.length === 0) {
+  const title = typeof t.title === "string" ? t.title.trim() : "";
+  const desc = typeof t.description === "string" ? t.description.trim() : "";
+  let description = "";
+  if (desc.length > 0) {
+    description = title.length > 0 ? `${title} — ${desc}` : desc;
+  } else {
+    description = title;
+  }
+  if (!description) {
     return null;
   }
-  const task: Task = { id, title: t.title };
-  if (typeof t.description === "string" && t.description.length > 0) {
-    task.description = t.description;
+  return { id, description };
+}
+
+function migrateLastStoppedFromV1(v: unknown): LastStoppedTask | null {
+  if (!v || typeof v !== "object") {
+    return null;
   }
-  return task;
+  const o = v as Record<string, unknown>;
+  if (typeof o.taskId !== "string") {
+    return null;
+  }
+  const title = typeof o.title === "string" ? o.title.trim() : "";
+  const desc = typeof o.description === "string" ? o.description.trim() : "";
+  const description =
+    desc.length > 0 ? (title.length > 0 ? `${title} — ${desc}` : desc) : title;
+  if (!description) {
+    return null;
+  }
+  return { taskId: o.taskId, description };
+}
+
+function asTaskV2(id: string, v: unknown): Task | null {
+  if (!v || typeof v !== "object") {
+    return null;
+  }
+  const t = v as Record<string, unknown>;
+  if (typeof t.description !== "string" || t.description.trim().length === 0) {
+    return null;
+  }
+  return { id, description: t.description.trim() };
 }
 
 function asEntry(v: unknown): TimeEntry | null {
@@ -155,17 +230,17 @@ function asEntry(v: unknown): TimeEntry | null {
   };
 }
 
-function asLastStopped(v: unknown): LastStoppedTask | null {
+function asLastStoppedV2(v: unknown): LastStoppedTask | null {
   if (!v || typeof v !== "object") {
     return null;
   }
   const o = v as Record<string, unknown>;
-  if (typeof o.taskId !== "string" || typeof o.title !== "string") {
+  if (typeof o.taskId !== "string" || typeof o.description !== "string") {
     return null;
   }
-  const out: LastStoppedTask = { taskId: o.taskId, title: o.title };
-  if (typeof o.description === "string" && o.description.length > 0) {
-    out.description = o.description;
+  const d = o.description.trim();
+  if (!d) {
+    return null;
   }
-  return out;
+  return { taskId: o.taskId, description: d };
 }

@@ -3,21 +3,26 @@ import type { Task } from "../types";
 import type { TimerService } from "../timer/timerService";
 
 const newTaskItem: vscode.QuickPickItem = {
-  label: "$(add) New task…",
-  description: "Enter a new title",
+  label: "$(add) New entry…",
+  description: "Describe what you are doing",
   alwaysShow: true,
 };
 
 export type SegmentPickResult = {
-  title: string;
-  description?: string;
+  description: string;
 };
 
 type PickItem = vscode.QuickPickItem & { fromTask?: Task };
 
+function truncate(s: string, max: number): string {
+  if (s.length <= max) {
+    return s;
+  }
+  return `${s.slice(0, max - 1)}…`;
+}
+
 /**
- * Picks title (and optional description when cloning a recent task) for a **new work segment**.
- * Each segment gets a new `Task` id in the timer service; recent rows are templates only.
+ * Picks a description for a **new work segment**. Recent rows are templates only (new task id each time).
  */
 export async function pickSegment(
   service: TimerService,
@@ -25,8 +30,7 @@ export async function pickSegment(
 ): Promise<SegmentPickResult | undefined> {
   const recent = service.listRecentTasks(12);
   const recentItems: PickItem[] = recent.map((t) => ({
-    label: t.title,
-    description: t.description,
+    label: truncate(t.description, 72),
     fromTask: t,
   }));
 
@@ -38,23 +42,19 @@ export async function pickSegment(
     return undefined;
   }
   if (picked === (newTaskItem as PickItem)) {
-    const title = await vscode.window.showInputBox({
-      prompt: "Task title",
-      validateInput: (s) => (s.trim().length > 0 ? undefined : "Enter a title"),
+    const description = await vscode.window.showInputBox({
+      prompt: "What are you working on?",
+      validateInput: (s) =>
+        s.trim().length > 0 ? undefined : "Enter a short description",
     });
-    if (!title?.trim()) {
+    if (!description?.trim()) {
       return undefined;
     }
-    return { title: title.trim() };
+    return { description: description.trim() };
   }
   const from = picked.fromTask;
   if (!from) {
     return undefined;
   }
-  return {
-    title: from.title,
-    ...(from.description !== undefined && from.description.length > 0
-      ? { description: from.description }
-      : {}),
-  };
+  return { description: from.description };
 }
