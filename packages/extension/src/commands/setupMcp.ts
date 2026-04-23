@@ -3,7 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 
-const SERVER_KEY = "time-keeper";
+const SERVER_KEY = "nuveon-time-keeper";
 
 /** Local = project `.cursor/mcp.json`. Global = user `~/.cursor/mcp.json`. */
 type McpFileTarget = "local" | "global";

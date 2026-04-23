@@ -50,7 +50,7 @@ async function writeSegmentCsv(rows: SegmentRowJson[]): Promise<void> {
     void vscode.window.showInformationMessage("No rows to export (adjust filters or log time first).");
     return;
   }
-  const defaultName = `time-keeper-export-${new Date().toISOString().slice(0, 10)}.csv`;
+  const defaultName = `nuveon-time-keeper-export-${new Date().toISOString().slice(0, 10)}.csv`;
   const uri = await vscode.window.showSaveDialog({
     title: "Export Time Keeper summary",
     defaultUri: vscode.Uri.file(path.join(os.homedir(), defaultName)),

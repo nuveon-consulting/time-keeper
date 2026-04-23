@@ -40,10 +40,10 @@ From repository root (npm workspaces):
 
 ```bash
 npm install
-npm run compile -w time-keeper
-npm run test -w time-keeper
-npm run watch -w time-keeper
-npm run package -w time-keeper
+npm run compile -w nuveon-time-keeper
+npm run test -w nuveon-time-keeper
+npm run watch -w nuveon-time-keeper
+npm run package -w nuveon-time-keeper
 ```
 
 Extension details: [packages/extension/README.md](packages/extension/README.md).
@@ -59,4 +59,4 @@ Extension details: [packages/extension/README.md](packages/extension/README.md).
 - [ ] User-facing behavior matches [docs/spec/product.md](docs/spec/product.md) / [ux-commands.md](docs/spec/ux-commands.md); MCP behavior matches [docs/spec/mcp.md](docs/spec/mcp.md) when applicable.
 - [ ] Commands registered with stable IDs; defaults documented.
 - [ ] No secrets or raw audio in repo or default logs.
-- [ ] `npm run compile -w time-keeper` succeeds.
+- [ ] `npm run compile -w nuveon-time-keeper` succeeds.

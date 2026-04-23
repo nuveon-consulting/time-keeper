@@ -7,14 +7,14 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-echo "Bumping patch version (workspace time-keeper)..."
-npm version patch -w time-keeper --no-git-tag-version
+echo "Bumping patch version (workspace nuveon-time-keeper)..."
+npm version patch -w nuveon-time-keeper --no-git-tag-version
 
 VERSION="$(node -p "require('./packages/extension/package.json').version")"
-VSIX="$ROOT/packages/extension/time-keeper-${VERSION}.vsix"
+VSIX="$ROOT/packages/extension/nuveon-time-keeper-${VERSION}.vsix"
 
 echo "Packaging ${VERSION}..."
-npm run package -w time-keeper
+npm run package -w nuveon-time-keeper
 
 if [[ ! -f "${VSIX}" ]]; then
   echo "error: expected VSIX at ${VSIX}" >&2
@@ -30,4 +30,4 @@ fi
 echo "Installing ${VSIX}..."
 "${CURSOR_BIN}" --install-extension "${VSIX}"
 
-echo "Done. Installed time-keeper v${VERSION}."
+echo "Done. Installed nuveon-time-keeper v${VERSION}."
