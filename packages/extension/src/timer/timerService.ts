@@ -1,28 +1,15 @@
 import * as vscode from "vscode";
-import { randomUUID } from "node:crypto";
-import { JsonlStore } from "../storage/jsonlStore";
-import {
-  emptyState,
-  type LastStoppedTask,
-  type PersistedState,
-  type Task,
-  type TimeEntry,
-} from "../types";
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
+import type { JsonlStore } from "../storage/jsonlStore";
+import { emptyState, type LastStoppedTask, type PersistedState, type Task, type TimeEntry } from "../types";
+import { TimerEngine } from "./timerEngine";
 
 export class TimerService implements vscode.Disposable {
-  private state: PersistedState;
+  private readonly engine: TimerEngine;
   private readonly _onDidChange = new vscode.EventEmitter<void>();
   readonly onDidChange = this._onDidChange.event;
 
-  constructor(
-    private readonly store: JsonlStore,
-    initial: PersistedState,
-  ) {
-    this.state = this.repairInvariants(initial);
+  constructor(store: JsonlStore, initial: PersistedState) {
+    this.engine = new TimerEngine(store, initial, () => this._onDidChange.fire());
   }
 
   dispose(): void {
@@ -30,129 +17,39 @@ export class TimerService implements vscode.Disposable {
   }
 
   getState(): Readonly<PersistedState> {
-    return this.state;
+    return this.engine.getState();
   }
 
   getActiveEntry(): TimeEntry | undefined {
-    return this.state.entries.find((e) => e.end === null);
+    return this.engine.getActiveEntry();
   }
 
   getActiveTask(): Task | undefined {
-    const e = this.getActiveEntry();
-    if (!e) {
-      return undefined;
-    }
-    return this.state.tasks[e.taskId];
+    return this.engine.getActiveTask();
   }
 
   listRecentTasks(limit: number): Task[] {
-    return this.store.listRecentTasks(this.state, limit);
+    return this.engine.listRecentTasks(limit);
   }
 
   getLastStopped(): LastStoppedTask | null {
-    return this.state.lastStopped;
+    return this.engine.getLastStopped();
   }
 
-  /**
-   * Closes any running segment, then starts a **new** `Task` (new id) and a **new** `TimeEntry`
-   * with a fresh `start`. No concurrent segments.
-   */
   async startTask(description: string): Promise<void> {
-    const trimmed = description.trim();
-    if (!trimmed) {
-      return;
-    }
-    await this.closeActiveIfAny();
-    this.appendRunningSegment(trimmed);
-    await this.persist();
+    await this.engine.startTask(description);
   }
 
   async switchTask(description: string): Promise<void> {
-    await this.startTask(description);
+    await this.engine.switchTask(description);
   }
 
   async stopTask(): Promise<boolean> {
-    const active = this.getActiveEntry();
-    if (!active) {
-      return false;
-    }
-    const task = this.state.tasks[active.taskId];
-    active.end = nowIso();
-    if (task) {
-      this.state.lastStopped = {
-        taskId: task.id,
-        description: task.description,
-      };
-    }
-    await this.persist();
-    return true;
+    return this.engine.stopTask();
   }
 
-  /**
-   * Starts a **new** `Task` (new id) with the same description as the last stopped segment.
-   */
   async resumePrevious(): Promise<boolean> {
-    if (this.getActiveEntry()) {
-      return false;
-    }
-    const ls = this.state.lastStopped;
-    if (!ls) {
-      return false;
-    }
-    const source = this.state.tasks[ls.taskId];
-    const description = source?.description ?? ls.description;
-    this.appendRunningSegment(description);
-    await this.persist();
-    return true;
-  }
-
-  private async closeActiveIfAny(): Promise<void> {
-    const active = this.getActiveEntry();
-    if (!active) {
-      return;
-    }
-    const task = this.state.tasks[active.taskId];
-    active.end = nowIso();
-    if (task) {
-      this.state.lastStopped = {
-        taskId: task.id,
-        description: task.description,
-      };
-    }
-    await this.persist();
-  }
-
-  /** New `Task` row + new running `TimeEntry`; caller persists. */
-  private appendRunningSegment(description: string): void {
-    const task: Task = {
-      id: randomUUID(),
-      description: description.trim(),
-    };
-    this.state.tasks[task.id] = task;
-    const entry: TimeEntry = {
-      id: randomUUID(),
-      taskId: task.id,
-      start: nowIso(),
-      end: null,
-    };
-    this.state.entries.push(entry);
-  }
-
-  private repairInvariants(s: PersistedState): PersistedState {
-    const running = s.entries.filter((e) => e.end === null);
-    if (running.length <= 1) {
-      return s;
-    }
-    const sorted = [...running].sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
-    for (const e of sorted.slice(0, -1)) {
-      e.end = e.start;
-    }
-    return s;
-  }
-
-  private async persist(): Promise<void> {
-    await this.store.save(this.state);
-    this._onDidChange.fire();
+    return this.engine.resumePrevious();
   }
 }
 

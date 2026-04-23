@@ -7,7 +7,7 @@ Authoritative product and technical notes for Time Keeper. **v1** targets a **Cu
 | Document | Purpose |
 |----------|---------|
 | [product.md](product.md) | Problem, personas, v1 stories, UX principles |
-| [ux-commands.md](ux-commands.md) | Commands, keybindings, status bar, speech grammar |
+| [ux-commands.md](ux-commands.md) | Commands, keybindings, status bar |
 | [architecture.md](architecture.md) | Extension structure, state, persistence |
 | [persistence.md](persistence.md) | Storage tiers, optional local DB, remote sync |
 | [speech-to-text.md](speech-to-text.md) | STT providers, capture model, secrets, failures |

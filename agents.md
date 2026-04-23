@@ -36,15 +36,17 @@ Goals: start, stop, and resume tasks with minimal interaction; optional **push-t
 
 ## Build, test, and package
 
-From repository root (npm workspaces):
+The extension is **not** an npm workspace member (vsce cannot package hoisted/symlinked `node_modules` reliably). Install and run scripts **from `packages/extension`**:
 
 ```bash
-npm install
-npm run compile -w nuveon-time-keeper
-npm run test -w nuveon-time-keeper
-npm run watch -w nuveon-time-keeper
-npm run package -w nuveon-time-keeper
+npm install --prefix packages/extension
+npm run compile --prefix packages/extension
+npm run test --prefix packages/extension
+npm run watch --prefix packages/extension
+npm run package --prefix packages/extension
 ```
+
+Or: `npm run install-extension` at the repo root, then `cd packages/extension` and use `npm run compile` / `npm run package` there.
 
 Extension details: [packages/extension/README.md](packages/extension/README.md).
 
@@ -59,4 +61,4 @@ Extension details: [packages/extension/README.md](packages/extension/README.md).
 - [ ] User-facing behavior matches [docs/spec/product.md](docs/spec/product.md) / [ux-commands.md](docs/spec/ux-commands.md); MCP behavior matches [docs/spec/mcp.md](docs/spec/mcp.md) when applicable.
 - [ ] Commands registered with stable IDs; defaults documented.
 - [ ] No secrets or raw audio in repo or default logs.
-- [ ] `npm run compile -w nuveon-time-keeper` succeeds.
+- [ ] `npm run compile --prefix packages/extension` (or `cd packages/extension && npm run compile`) succeeds.

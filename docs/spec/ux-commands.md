@@ -1,6 +1,6 @@
 # UX and commands
 
-This document defines **contribution IDs**, default interactions, and speech grammar. **Update this file** when adding or renaming commands.
+This document defines **contribution IDs**, default interactions, and UX notes. **Update this file** when adding or renaming commands.
 
 Implementation manifest: [`packages/extension/package.json`](../../packages/extension/package.json).
 
@@ -39,20 +39,8 @@ Users may remap via Keyboard Shortcuts.
 
 1. **Start / switch:** recent descriptions (by last activity) + “New entry…” → `showInputBox` for a new description. Choosing a recent row **copies** that description text into a **new** task id for this segment.
 2. **Summary:** use **Open summary** for the webview grid and filters (see [architecture.md](architecture.md)).
-3. **Ambiguous speech:** (future) show top transcript interpretations before committing.
-
-## Speech command grammar (informal)
-
-Push-to-talk sends audio to STT; the **transcript** is parsed with simple intent detection (exact strings are implementation details):
-
-- **Start:** phrases containing “start” / “begin” / “new task” + remainder as task description.
-- **Stop:** “stop”, “stop task”, “stop timer”.
-- **Resume:** “resume”, “resume previous”, “back to previous”.
-- **Switch:** “switch to …” / “change task to …”.
-
-If parsing fails, fall back to **treating full transcript as the description** on start, or show Quick Pick.
 
 ## Accessibility
 
-- All flows available without voice.
+- All flows available from the keyboard, status bar, and Command Palette.
 - Sufficient contrast for status bar labels in default themes.

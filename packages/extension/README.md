@@ -106,11 +106,3 @@ To export **everything**, clear or widen the filters first, then export.
 
 - Data stays **on your machine** in the editor’s extension storage.
 - There is **no** built-in cloud sync or team server in this version.
-
----
-
-## Support and source
-
-Questions or issues: use the issue tracker on the project repository: https://github.com/nuveon/time-keeper
-
-If you are **developing** the extension from source (clone, build, package), see the **repository** `README` and `AGENTS.md` at https://github.com/nuveon/time-keeper — not required for normal use.

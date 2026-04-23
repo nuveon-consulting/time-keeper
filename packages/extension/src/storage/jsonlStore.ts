@@ -1,6 +1,5 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import * as vscode from "vscode";
 import {
   STATE_FILE_VERSION,
   STATE_FILE_VERSION_LEGACY,
@@ -15,15 +14,15 @@ import {
 export const STATE_FILE_NAME = "time-keeper-state.v1.json";
 
 /**
- * Loads and saves persisted timer state under `globalStorageUri`.
+ * Loads and saves persisted timer state under a directory (typically `ExtensionContext.globalStorageUri.fsPath`).
  * Uses a single versioned JSON file with atomic temp+rename writes.
  * Version **1** files (title + optional description) are migrated to **2** (description only) on load.
  */
 export class JsonlStore {
   private readonly filePath: string;
 
-  constructor(globalStorageUri: vscode.Uri) {
-    this.filePath = path.join(globalStorageUri.fsPath, STATE_FILE_NAME);
+  constructor(globalStorageDirFsPath: string) {
+    this.filePath = path.join(globalStorageDirFsPath, STATE_FILE_NAME);
   }
 
   async load(): Promise<{ state: PersistedState; corrupt: boolean }> {

@@ -6,7 +6,7 @@ import { StatusBarController } from "./ui/statusBar";
 import { SummaryPanelController } from "./ui/summaryPanel";
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  const store = new JsonlStore(context.globalStorageUri);
+  const store = new JsonlStore(context.globalStorageUri.fsPath);
   const { service, corrupt } = await hydrateTimerService(store);
   if (corrupt) {
     void vscode.window.showWarningMessage(
@@ -17,7 +17,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const statusBar = new StatusBarController(service);
   const summaryPanel = new SummaryPanelController(context.extensionUri, service);
   context.subscriptions.push(statusBar, service, summaryPanel);
-  for (const d of registerCommands(service, summaryPanel)) {
+  for (const d of registerCommands(context, service, summaryPanel)) {
     context.subscriptions.push(d);
   }
 }

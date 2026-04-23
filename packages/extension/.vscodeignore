@@ -6,3 +6,6 @@ src/**
 **/tsconfig.json
 **/*.map
 **/*.ts
+# vsce follows hoisted/symlinked deps outside this folder; ignore monorepo parents (see vscode-vsce#777).
+../**
+../../**

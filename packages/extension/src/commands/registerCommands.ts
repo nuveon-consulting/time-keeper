@@ -6,6 +6,7 @@ import { runBuildTimesheetText } from "./timesheetText";
 import { runSetupMcp } from "./setupMcp";
 
 export function registerCommands(
+  context: vscode.ExtensionContext,
   service: TimerService,
   summaryPanel: SummaryPanelController,
 ): vscode.Disposable[] {
@@ -25,7 +26,7 @@ export function registerCommands(
 
   disposables.push(
     vscode.commands.registerCommand("timeKeeper.setupMcp", async () => {
-      await runSetupMcp();
+      await runSetupMcp(context);
     }),
   );
 
@@ -98,7 +99,7 @@ export function registerCommands(
       const items: ActionPick[] = [
         { label: "$(table) Open summary…", action: "summary" },
         { label: "$(file-text) Build timesheet text…", action: "timesheet" },
-        { label: "$(server-process) Set up MCP…", action: "setupMcp" },
+        { label: "$(server-process) Set up MCP (VS Code or Cursor)…", action: "setupMcp" },
         ...tail,
       ];
 

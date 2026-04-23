@@ -6,8 +6,8 @@
     "type": "git",
     "url": "https://github.com/nuveon/time-keeper.git"
   },
-  "workspaces": ["packages/extension"],
   "scripts": {
-    "bump-install-extension": "bash ./scripts/bump-install-extension.sh"
+    "bump-install-extension": "bash ./scripts/bump-install-extension.sh",
+    "install-extension": "npm install --prefix packages/extension"
   }
 }

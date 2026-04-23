@@ -20,7 +20,7 @@ description: >-
 3. **Secrets** (STT API keys): `context.secrets.store` / `get` / `delete` — never `globalState` for secrets.
 4. **Settings** (non-secret): `vscode.workspace.getConfiguration('timeKeeper')` with schema in `package.json` `contributes.configuration`.
 5. New commands: add under `contributes.commands`, wire in activation events, document in [docs/spec/ux-commands.md](../../../docs/spec/ux-commands.md).
-6. Package with workspace script `npm run package -w nuveon-time-keeper` (see [packages/extension/README.md](../../../packages/extension/README.md)).
+6. Package from `packages/extension` (`npm run package` there, or `npm run package --prefix packages/extension` from repo root); see [packages/extension/README.md](../../../packages/extension/README.md).
 
 ## Guardrails
 

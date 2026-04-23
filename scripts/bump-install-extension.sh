@@ -5,16 +5,20 @@ set -euo pipefail
 # Run from anywhere: npm run bump-install-extension (repo root).
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT"
+EXT="$ROOT/packages/extension"
+cd "$EXT"
 
-echo "Bumping patch version (workspace nuveon-time-keeper)..."
-npm version patch -w nuveon-time-keeper --no-git-tag-version
+echo "Bumping patch version (nuveon-time-keeper)..."
+npm version patch --no-git-tag-version
 
-VERSION="$(node -p "require('./packages/extension/package.json').version")"
-VSIX="$ROOT/packages/extension/nuveon-time-keeper-${VERSION}.vsix"
+VERSION="$(node -p "require('./package.json').version")"
+VSIX="$EXT/nuveon-time-keeper-${VERSION}.vsix"
+
+echo "Installing extension dependencies (local node_modules; avoids vsce workspace symlink issues)..."
+npm install
 
 echo "Packaging ${VERSION}..."
-npm run package -w nuveon-time-keeper
+npm run package
 
 if [[ ! -f "${VSIX}" ]]; then
   echo "error: expected VSIX at ${VSIX}" >&2
