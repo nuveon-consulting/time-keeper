@@ -1,0 +1,50 @@
+# Product specification
+
+## Problem
+
+Developers need to **capture time on tasks** without breaking flow. Traditional timers demand too many clicks and context switches. Time Keeper optimizes for **start, stop, and resume** from the IDE.
+
+## Personas
+
+- **IDE-native developer:** Spends most of the day in Cursor or VS Code; wants keyboard-first control and optional voice for task notes.
+- **Multi-tasker:** Frequently switches work; needs **return to previous task** without hunting history.
+
+## v1 scope (IDE extension)
+
+**In scope**
+
+- **Start / switch:** each action creates a **new task record** (new id) and a **new time segment** with a fresh **start**; picking a “recent” name only **copies** title/description—there are **no concurrent running segments**, and each segment gets its own **stop** (`end`) and **duration**.
+- Stop the active segment (sets `end` on the current `TimeEntry`).
+- **Resume previous:** starts a **new task record** (new id) with the **same title and description** as the work item you last stopped, and a **new time segment** with a fresh **start**; **duration** for each segment is derived when you stop (`end` − `start`).
+- Low-friction UX: commands, default keybindings, status bar indicator, Quick Pick where disambiguation is needed.
+- **MCP server** for **AI-assisted** time keeping: user-configured [Model Context Protocol](https://modelcontextprotocol.io/) tools that mirror start / stop / switch / resume and expose read-only (or equivalent) **timer state** for assistants such as Cursor’s agent. Spec: [mcp.md](mcp.md).
+
+**Out of scope for v1**
+
+- Native menu bar / system tray app (see [roadmap-native.md](roadmap-native.md)).
+- Team sync, billing export, and invoicing (may be future specs).
+- Always-on listening / wake word.
+
+## User stories
+
+1. **As a user**, I can start timing a new task with a **single command** and minimal prompts so I can stay in flow.
+2. **As a user**, I can **stop** the active task with one action so boundaries are accurate.
+3. **As a user**, I can **switch** work: the current segment **stops** (`end` set) and a **new task** + **new segment** opens for the next title (same rules as start—no overlap, one running segment at a time).
+4. **As a user**, I can **resume the work I had before** with one action: a **new task** row copying the previous title/description and a **new interval** (start now; duration once stopped).
+5. **As a user**, I can optionally **dictate** task details using push-to-talk so typing is not required.
+6. **As a user** who enables MCP, I can have a **trusted assistant** start or stop the timer and switch tasks in line with the same rules as the extension, without extra palette steps.
+
+## UX principles
+
+- Prefer **one primary action** per intent (start / stop / resume / switch).
+- **Defaults over forms:** reuse last task name, recent tasks, or fuzzy match before asking for full input.
+- **Visible state:** status bar (or equivalent) shows active task and elapsed time at a glance.
+- **Speech is optional** and never required for core flows.
+
+## Acceptance criteria (v1)
+
+- All four flows (start, stop, switch, resume previous) are reachable via **commands** documented in [ux-commands.md](ux-commands.md).
+- Default **keybindings** exist where they do not conflict with common editor bindings (document overrides).
+- Stopping persists **`end`** on the active entry; start/switch/resume each persist a **new** `Task` and a **new** running entry with **`start`**; **never** two segments with `end: null` at once.
+- No API keys in repository; configuration documented in [speech-to-text.md](speech-to-text.md).
+- MCP surface is documented in [mcp.md](mcp.md); shipped tools match extension semantics and persistence rules.

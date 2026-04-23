@@ -1,0 +1,74 @@
+{
+  "name": "time-keeper",
+  "displayName": "Time Keeper",
+  "description": "Low-friction time tracking for Cursor and VS Code.",
+  "version": "0.0.1",
+  "publisher": "nuveon",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:timeKeeper.startTask",
+    "onCommand:timeKeeper.stopTask",
+    "onCommand:timeKeeper.switchTask",
+    "onCommand:timeKeeper.resumePrevious",
+    "onCommand:timeKeeper.statusBarClick"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "timeKeeper.startTask",
+        "title": "Time Keeper: Start task…"
+      },
+      {
+        "command": "timeKeeper.stopTask",
+        "title": "Time Keeper: Stop task"
+      },
+      {
+        "command": "timeKeeper.switchTask",
+        "title": "Time Keeper: Switch task…"
+      },
+      {
+        "command": "timeKeeper.resumePrevious",
+        "title": "Time Keeper: Resume previous task"
+      },
+      {
+        "command": "timeKeeper.statusBarClick",
+        "title": "Time Keeper: Status bar menu"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "timeKeeper.startTask",
+        "key": "ctrl+shift+;",
+        "mac": "cmd+shift+;"
+      },
+      {
+        "command": "timeKeeper.stopTask",
+        "key": "ctrl+shift+'",
+        "mac": "cmd+shift+'"
+      },
+      {
+        "command": "timeKeeper.resumePrevious",
+        "key": "ctrl+shift+,",
+        "mac": "cmd+shift+,"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
+    "typescript": "^5.6.3"
+  }
+}

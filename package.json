@@ -1,0 +1,5 @@
+{
+  "name": "time-keeper-monorepo",
+  "private": true,
+  "workspaces": ["packages/extension"]
+}
