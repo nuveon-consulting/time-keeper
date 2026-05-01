@@ -15,6 +15,10 @@ export interface TimeEntry {
   start: string;
   /** ISO-8601 UTC when completed; null while running */
   end: string | null;
+  /** ISO-8601 UTC; optional grid-aligned start (floor) when alignment is enabled at close */
+  alignedStart?: string;
+  /** Aligned duration in ms (grid end ceil minus `alignedStart`); optional, see `alignedStart` */
+  alignedDurationMs?: number;
 }
 
 /**
@@ -30,6 +34,16 @@ export function timeEntryDurationMs(entry: TimeEntry): number | null {
     return null;
   }
   return endMs - startMs;
+}
+
+/** Aligned billing duration when persisted; otherwise `null`. */
+export function timeEntryAlignedDurationMs(entry: TimeEntry): number | null {
+  if (entry.alignedDurationMs === undefined || entry.alignedDurationMs === null) {
+    return null;
+  }
+  const n =
+    typeof entry.alignedDurationMs === "number" ? Math.trunc(entry.alignedDurationMs) : NaN;
+  return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
 export interface LastStoppedTask {

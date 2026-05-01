@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { JsonlStore, STATE_FILE_NAME } from "./storage/jsonlStore";
+import { normalizeAlignmentMinutes } from "./timer/alignment";
 import { hydrateTimerService } from "./timer/timerService";
 import { registerCommands } from "./commands/registerCommands";
 import { StatusBarController } from "./ui/statusBar";
@@ -7,9 +8,15 @@ import { SummaryPanelController } from "./ui/summaryPanel";
 
 const EXTERNAL_STATE_RELOAD_DEBOUNCE_MS = 120;
 
+function readWorkspaceAlignmentMinutes(): number {
+  const raw = vscode.workspace.getConfiguration("timeKeeper").get<number>("alignmentIntervalMinutes");
+  return normalizeAlignmentMinutes(raw);
+}
+
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const store = new JsonlStore(context.globalStorageUri.fsPath);
-  const { service, corrupt } = await hydrateTimerService(store);
+  const getAlignmentIntervalMinutes = (): number => readWorkspaceAlignmentMinutes();
+  const { service, corrupt } = await hydrateTimerService(store, getAlignmentIntervalMinutes);
   if (corrupt) {
     void vscode.window.showWarningMessage(
       "Nuveon Time Keeper storage was unreadable or corrupt; started a fresh ledger.",

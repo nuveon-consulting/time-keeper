@@ -3,7 +3,7 @@ import * as os from "node:os";
 import * as vscode from "vscode";
 import type { TimerService } from "../timer/timerService";
 import type { PersistedState } from "../types";
-import { timeEntryDurationMs } from "../types";
+import { timeEntryAlignedDurationMs, timeEntryDurationMs } from "../types";
 
 export interface SegmentRowJson {
   id: string;
@@ -11,7 +11,24 @@ export interface SegmentRowJson {
   start: string;
   end: string | null;
   durationMs: number;
+  /** ISO UTC when stored; null if no alignment row */
+  alignedStart: string | null;
+  /** ISO UTC, alignedStart + alignedDurationMs; null if unavailable */
+  alignedEnd: string | null;
+  /** Same source as datastore; null if absent */
+  alignedDurationMs: number | null;
   running: boolean;
+}
+
+function alignedEndIso(alignedStart: string | null, alignedDurationMs: number | null): string | null {
+  if (!alignedStart || alignedDurationMs === null || !Number.isFinite(alignedDurationMs)) {
+    return null;
+  }
+  const t = Date.parse(alignedStart);
+  if (!Number.isFinite(t)) {
+    return null;
+  }
+  return new Date(t + alignedDurationMs).toISOString();
 }
 
 export function buildSegmentRows(state: PersistedState): SegmentRowJson[] {
@@ -25,12 +42,17 @@ export function buildSegmentRows(state: PersistedState): SegmentRowJson[] {
     const durationMs = running
       ? Math.max(0, Date.now() - baseStart)
       : (timeEntryDurationMs(e) ?? 0);
+    const alignedDur = running ? null : timeEntryAlignedDurationMs(e);
+    const alignedStart = running || !e.alignedStart ? null : e.alignedStart;
     rows.push({
       id: e.id,
       description,
       start: e.start,
       end: e.end,
       durationMs,
+      alignedStart,
+      alignedEnd: alignedEndIso(alignedStart, alignedDur),
+      alignedDurationMs: alignedDur,
       running,
     });
   }
@@ -66,6 +88,9 @@ async function writeSegmentCsv(rows: SegmentRowJson[]): Promise<void> {
     "end_iso",
     "duration_seconds",
     "duration_ms",
+    "aligned_start_iso",
+    "aligned_end_iso",
+    "aligned_duration_ms",
     "description",
     "running",
   ];
@@ -76,6 +101,9 @@ async function writeSegmentCsv(rows: SegmentRowJson[]): Promise<void> {
       escapeCsvField(r.end ?? ""),
       (r.durationMs / 1000).toFixed(3),
       String(Math.round(r.durationMs)),
+      escapeCsvField(r.alignedStart ?? ""),
+      escapeCsvField(r.alignedEnd ?? ""),
+      r.alignedDurationMs === null ? "" : String(Math.round(r.alignedDurationMs)),
       escapeCsvField(r.description),
       r.running ? "yes" : "no",
     ].join(","),
@@ -109,7 +137,7 @@ function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
 </head>
 <body>
   <h1>Nuveon Time Keeper — Summary</h1>
-  <p class="hint">Times use your local timezone. Duration for a running segment updates when data refreshes (*).</p>
+  <p class="hint">Times use your local timezone. Duration for a running segment updates when data refreshes (*). <strong>Aligned start / end / duration</strong> columns show stored grid-aligned values for finished segments when <strong>Alignment interval</strong> is enabled in settings; otherwise they show —.</p>
   <div class="toolbar">
     <div class="row">
       <label for="fDesc">Description contains</label>
@@ -177,17 +205,22 @@ function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
     </div>
   </div>
   <div id="meta"></div>
+  <div class="table-wrap">
   <table>
     <thead>
       <tr>
         <th>Start</th>
         <th>End</th>
         <th>Duration</th>
+        <th>Aligned start</th>
+        <th>Aligned end</th>
+        <th>Aligned duration</th>
         <th>Description</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
   </table>
+  </div>
   <script src="${jsUri}"></script>
 </body>
 </html>`;

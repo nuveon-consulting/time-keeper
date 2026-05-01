@@ -221,12 +221,22 @@ function asEntry(v: unknown): TimeEntry | null {
   ) {
     return null;
   }
-  return {
+  const entry: TimeEntry = {
     id: e.id,
     taskId: e.taskId,
     start: e.start,
     end: e.end as string | null,
   };
+  const hasAlignedStart = typeof e.alignedStart === "string" && e.alignedStart.length > 0;
+  const durRaw =
+    typeof e.alignedDurationMs === "number" && Number.isFinite(e.alignedDurationMs)
+      ? Math.trunc(e.alignedDurationMs)
+      : NaN;
+  if (hasAlignedStart && durRaw >= 0) {
+    entry.alignedStart = e.alignedStart as string;
+    entry.alignedDurationMs = durRaw;
+  }
+  return entry;
 }
 
 function asLastStoppedV2(v: unknown): LastStoppedTask | null {

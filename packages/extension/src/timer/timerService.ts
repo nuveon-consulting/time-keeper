@@ -8,8 +8,17 @@ export class TimerService implements vscode.Disposable {
   private readonly _onDidChange = new vscode.EventEmitter<void>();
   readonly onDidChange = this._onDidChange.event;
 
-  constructor(store: JsonlStore, initial: PersistedState) {
-    this.engine = new TimerEngine(store, initial, () => this._onDidChange.fire());
+  constructor(
+    store: JsonlStore,
+    initial: PersistedState,
+    getAlignmentIntervalMinutes?: () => number,
+  ) {
+    this.engine = new TimerEngine(
+      store,
+      initial,
+      () => this._onDidChange.fire(),
+      getAlignmentIntervalMinutes,
+    );
   }
 
   dispose(): void {
@@ -60,9 +69,10 @@ export class TimerService implements vscode.Disposable {
 
 export async function hydrateTimerService(
   store: JsonlStore,
+  getAlignmentIntervalMinutes?: () => number,
 ): Promise<{ service: TimerService; corrupt: boolean }> {
   const { state, corrupt } = await store.load();
   const base = corrupt ? emptyState() : state;
-  const service = new TimerService(store, base);
+  const service = new TimerService(store, base, getAlignmentIntervalMinutes);
   return { service, corrupt };
 }

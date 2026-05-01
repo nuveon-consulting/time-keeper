@@ -71,6 +71,16 @@ h1 {
   display: none !important;
 }
 
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap table {
+  min-width: max(100%, 52rem);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

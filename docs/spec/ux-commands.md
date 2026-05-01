@@ -12,8 +12,10 @@ Implementation manifest: [`packages/extension/package.json`](../../packages/exte
 | `timeKeeper.stopTask` | Time Keeper: Stop | Sets **`end`** on the active segment; updates **resume previous** snapshot. |
 | `timeKeeper.switchTask` | Time Keeper: Switch… | Same picker and rules as start: stop current segment, then **new task** + **new segment** for the chosen description. |
 | `timeKeeper.resumePrevious` | Time Keeper: Resume previous | When **idle**, creates a **new task** (new id) with the **same description** as the last stopped segment. Message if already running or no snapshot. |
-| `timeKeeper.openSummary` | Time Keeper: Open summary | Opens an **editor tab** with a **filterable grid** of all segments (start, end, duration, description). |
-| `timeKeeper.statusBarClick` | Time Keeper: Status bar menu | **Open summary**, then Start / Resume when idle, or Stop / Switch when running. |
+| `timeKeeper.openSummary` | Nuveon Time Keeper: Open summary | Opens an **editor tab** with a **filterable grid** of segments (raw + aligned columns when stored). |
+| `timeKeeper.buildTimesheetText` | Nuveon Time Keeper: Build timesheet text… | Quick Pick **local calendar day** → opens a plaintext buffer: total duration for that day + sorted task bullets. Uses **aligned** span overlap when `timeKeeper.timesheetUseAlignedValues` is **true** and the segment has `alignedStart` / `alignedDurationMs`; otherwise uses raw `start`/`end`. |
+| `timeKeeper.setupMcp` | Nuveon Time Keeper: Set up MCP (VS Code or Cursor)… | Writes/merges **`mcp.json`** for bundled stdio MCP. |
+| `timeKeeper.statusBarClick` | Nuveon Time Keeper: Status bar menu | **Open summary**, then Start / Resume when idle, or Stop / Switch when running. |
 
 `timeKeeper.toggleTimer` remains **optional** (not contributed in v1).
 

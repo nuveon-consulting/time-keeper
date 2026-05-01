@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import type { PersistedState } from "../types";
+import type { PersistedState, TimeEntry } from "../types";
+import { timeEntryAlignedDurationMs } from "../types";
 import type { TimerService } from "../timer/timerService";
 
 /** Local calendar YYYY-MM-DD for a `Date` (same idea as summary webview). */
@@ -41,15 +42,47 @@ export function formatDurationMs(ms: number): string {
   return `${s}s`;
 }
 
+/** Resolved wall span for timesheet overlap (UTC ms). */
+function timesheetSegmentSpanMs(
+  entry: TimeEntry,
+  nowMs: number,
+  preferAligned: boolean,
+): { start: number; end: number } | null {
+  if (preferAligned && entry.end !== null) {
+    const alignedLen = timeEntryAlignedDurationMs(entry);
+    const alignedStartMs = entry.alignedStart ? Date.parse(entry.alignedStart) : NaN;
+    if (alignedLen !== null && Number.isFinite(alignedStartMs)) {
+      const alignedEndMs = alignedStartMs + alignedLen;
+      if (alignedEndMs > alignedStartMs) {
+        return { start: alignedStartMs, end: alignedEndMs };
+      }
+    }
+  }
+  const segStart = Date.parse(entry.start);
+  if (!Number.isFinite(segStart)) {
+    return null;
+  }
+  const segEnd = entry.end === null ? nowMs : Date.parse(entry.end);
+  if (!Number.isFinite(segEnd) || segEnd <= segStart) {
+    return null;
+  }
+  return { start: segStart, end: segEnd };
+}
+
 /**
  * Milliseconds of each entry overlapping the given local calendar day,
  * keyed by task description. Running segments use `nowMs` as the open end.
+ *
+ * When `useAlignedSpans` is true, completed entries with `alignedStart` + `alignedDurationMs`
+ * use that span; others still use raw `start`/`end`.
  */
 export function durationByDescriptionForLocalDay(
   state: PersistedState,
   ymd: string,
   nowMs: number,
+  options?: { useAlignedSpans?: boolean },
 ): { totalMs: number; byDescription: Map<string, number> } {
+  const useAlignedSpans = options?.useAlignedSpans === true;
   const bounds = parseLocalYMD(ymd);
   const byDescription = new Map<string, number>();
   if (!bounds) {
@@ -67,14 +100,11 @@ export function durationByDescriptionForLocalDay(
     if (!desc) {
       continue;
     }
-    const segStart = Date.parse(entry.start);
-    if (!Number.isFinite(segStart)) {
+    const span = timesheetSegmentSpanMs(entry, nowMs, useAlignedSpans);
+    if (!span) {
       continue;
     }
-    const segEnd = entry.end === null ? nowMs : Date.parse(entry.end);
-    if (!Number.isFinite(segEnd) || segEnd <= segStart) {
-      continue;
-    }
+    const { start: segStart, end: segEnd } = span;
     const overlapStart = Math.max(segStart, dayStart);
     const overlapEnd = Math.min(segEnd, dayEnd);
     const overlap = overlapEnd - overlapStart;
@@ -150,7 +180,11 @@ export async function runBuildTimesheetText(service: TimerService): Promise<void
     return;
   }
   const state = service.getState();
-  const { totalMs, byDescription } = durationByDescriptionForLocalDay(state, ymd, Date.now());
+  const useAligned =
+    vscode.workspace.getConfiguration("timeKeeper").get<boolean>("timesheetUseAlignedValues") === true;
+  const { totalMs, byDescription } = durationByDescriptionForLocalDay(state, ymd, Date.now(), {
+    useAlignedSpans: useAligned,
+  });
   const distinct = [...byDescription.keys()].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
   const body = buildTimesheetBody(ymd, totalMs, distinct);
   const doc = await vscode.workspace.openTextDocument({

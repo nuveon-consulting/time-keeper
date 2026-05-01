@@ -2,7 +2,11 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { TIME_KEEPER_GLOBAL_STORAGE_ENV } from "../timeKeeperPaths";
+import { normalizeAlignmentMinutes } from "../timer/alignment";
+import {
+  TIME_KEEPER_ALIGNMENT_INTERVAL_MINUTES_ENV,
+  TIME_KEEPER_GLOBAL_STORAGE_ENV,
+} from "../timeKeeperPaths";
 
 const SERVER_KEY = "nuveon-time-keeper";
 
@@ -118,14 +122,25 @@ function bundledMcpScriptPath(extensionPath: string): string {
   return path.join(extensionPath, "out", "mcp", "index.js");
 }
 
+function mcpProcessEnv(ctx: vscode.ExtensionContext): Record<string, string> {
+  const env: Record<string, string> = {
+    [TIME_KEEPER_GLOBAL_STORAGE_ENV]: ctx.globalStorageUri.fsPath,
+  };
+  const mins = normalizeAlignmentMinutes(
+    vscode.workspace.getConfiguration("timeKeeper").get<number>("alignmentIntervalMinutes"),
+  );
+  if (mins > 0) {
+    env[TIME_KEEPER_ALIGNMENT_INTERVAL_MINUTES_ENV] = String(mins);
+  }
+  return env;
+}
+
 function cursorBundledMcpEntry(ctx: vscode.ExtensionContext): Record<string, unknown> {
   const script = bundledMcpScriptPath(ctx.extensionPath);
   return {
     command: "node",
     args: [script],
-    env: {
-      [TIME_KEEPER_GLOBAL_STORAGE_ENV]: ctx.globalStorageUri.fsPath,
-    },
+    env: mcpProcessEnv(ctx),
   };
 }
 
@@ -135,9 +150,7 @@ function vscodeBundledMcpEntry(ctx: vscode.ExtensionContext): Record<string, unk
     type: "stdio",
     command: "node",
     args: [script],
-    env: {
-      [TIME_KEEPER_GLOBAL_STORAGE_ENV]: ctx.globalStorageUri.fsPath,
-    },
+    env: mcpProcessEnv(ctx),
   };
 }
 

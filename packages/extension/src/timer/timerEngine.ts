@@ -7,6 +7,7 @@ import {
   type Task,
   type TimeEntry,
 } from "../types";
+import { computeAlignedSpan, normalizeAlignmentMinutes } from "./alignment";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -22,6 +23,8 @@ export class TimerEngine {
     private readonly store: JsonlStore,
     initial: PersistedState,
     private readonly onAfterPersist?: () => void,
+    /** When it returns ≥1 minute, closed segments snap start/end to that grid (never shorter). */
+    private readonly getAlignmentIntervalMinutes?: () => number,
   ) {
     this.state = this.repairInvariants(initial);
   }
@@ -82,6 +85,7 @@ export class TimerEngine {
     }
     const task = this.state.tasks[active.taskId];
     active.end = nowIso();
+    this.applyAlignmentToCompleted(active);
     if (task) {
       this.state.lastStopped = {
         taskId: task.id,
@@ -117,6 +121,7 @@ export class TimerEngine {
     }
     const task = this.state.tasks[active.taskId];
     active.end = nowIso();
+    this.applyAlignmentToCompleted(active);
     if (task) {
       this.state.lastStopped = {
         taskId: task.id,
@@ -142,6 +147,26 @@ export class TimerEngine {
     this.state.entries.push(entry);
   }
 
+  private applyAlignmentToCompleted(entry: TimeEntry): void {
+    if (!entry.end) {
+      return;
+    }
+    const mins = normalizeAlignmentMinutes(this.getAlignmentIntervalMinutes?.());
+    if (!mins) {
+      delete entry.alignedStart;
+      delete entry.alignedDurationMs;
+      return;
+    }
+    const span = computeAlignedSpan(entry.start, entry.end, mins);
+    if (!span) {
+      delete entry.alignedStart;
+      delete entry.alignedDurationMs;
+      return;
+    }
+    entry.alignedStart = span.alignedStart;
+    entry.alignedDurationMs = span.alignedDurationMs;
+  }
+
   private repairInvariants(s: PersistedState): PersistedState {
     const running = s.entries.filter((e) => e.end === null);
     if (running.length <= 1) {
@@ -150,6 +175,8 @@ export class TimerEngine {
     const sorted = [...running].sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
     for (const e of sorted.slice(0, -1)) {
       e.end = e.start;
+      delete e.alignedStart;
+      delete e.alignedDurationMs;
     }
     return s;
   }

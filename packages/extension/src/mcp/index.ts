@@ -2,7 +2,11 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { JsonlStore } from "../storage/jsonlStore";
-import { TIME_KEEPER_GLOBAL_STORAGE_ENV } from "../timeKeeperPaths";
+import { parseAlignmentMinutesEnv } from "../timer/alignment";
+import {
+  TIME_KEEPER_ALIGNMENT_INTERVAL_MINUTES_ENV,
+  TIME_KEEPER_GLOBAL_STORAGE_ENV,
+} from "../timeKeeperPaths";
 import { TimerEngine } from "../timer/timerEngine";
 import { emptyState } from "../types";
 
@@ -14,9 +18,13 @@ function errText(message: string) {
   return { isError: true as const, content: [{ type: "text" as const, text: message }] };
 }
 
+function mcpAlignmentIntervalMinutes(): number {
+  return parseAlignmentMinutesEnv(process.env[TIME_KEEPER_ALIGNMENT_INTERVAL_MINUTES_ENV]);
+}
+
 async function withEngine<T>(store: JsonlStore, fn: (engine: TimerEngine) => Promise<T>): Promise<T> {
   const { state, corrupt } = await store.load();
-  const engine = new TimerEngine(store, corrupt ? emptyState() : state, undefined);
+  const engine = new TimerEngine(store, corrupt ? emptyState() : state, undefined, mcpAlignmentIntervalMinutes);
   return fn(engine);
 }
 

@@ -1,6 +1,6 @@
 (function () {
   const vscode = acquireVsCodeApi();
-  /** @type {Array<{id:string,description:string,start:string,end:string|null,durationMs:number,running:boolean}>} */
+  /** @type {Array<{id:string,description:string,start:string,end:string|null,durationMs:number,alignedStart:string|null,alignedEnd:string|null,alignedDurationMs:number|null,running:boolean}>} */
   let allRows = [];
 
   /** @param {string|number} isoOrMs ISO string or epoch ms (local calendar date) */
@@ -197,9 +197,13 @@
     }
     const visible = getVisibleRows();
     let sum = 0;
+    let alignedSum = 0;
     const frag = document.createDocumentFragment();
     for (const row of visible) {
       sum += row.durationMs;
+      if (!row.running && row.alignedDurationMs != null) {
+        alignedSum += row.alignedDurationMs;
+      }
       const tr = document.createElement("tr");
       const c0 = document.createElement("td");
       c0.textContent = formatWhen(row.start);
@@ -207,18 +211,32 @@
       c1.textContent = row.running ? "… running" : formatWhen(row.end);
       const c2 = document.createElement("td");
       c2.textContent = formatDur(row.durationMs) + (row.running ? " *" : "");
+      const hasAligned =
+        row.alignedStart &&
+        row.alignedEnd &&
+        row.alignedDurationMs != null &&
+        !row.running;
+      const cAlStart = document.createElement("td");
+      cAlStart.textContent = hasAligned ? formatWhen(row.alignedStart) : "—";
+      const cAlEnd = document.createElement("td");
+      cAlEnd.textContent = hasAligned ? formatWhen(row.alignedEnd) : "—";
+      const cAlDur = document.createElement("td");
+      cAlDur.textContent = hasAligned ? formatDur(row.alignedDurationMs) : "—";
       const c3 = document.createElement("td");
       c3.className = "desc-cell";
       c3.textContent = row.description;
       tr.appendChild(c0);
       tr.appendChild(c1);
       tr.appendChild(c2);
+      tr.appendChild(cAlStart);
+      tr.appendChild(cAlEnd);
+      tr.appendChild(cAlDur);
       tr.appendChild(c3);
       frag.appendChild(tr);
     }
     tbody.replaceChildren(frag);
     if (meta) {
-      meta.textContent =
+      let txt =
         visible.length +
         " segment(s) · filtered total " +
         formatDur(sum) +
@@ -227,6 +245,10 @@
         })
           ? " (* running duration is live)"
           : "");
+      if (alignedSum > 0) {
+        txt += " · aligned total " + formatDur(alignedSum);
+      }
+      meta.textContent = txt;
     }
   }
 
