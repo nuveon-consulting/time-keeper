@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.37] - 2026-05-01
+
+### Changed
+
+- Default shortcut **Ctrl+Shift+;** / **Cmd+Shift+;** runs **Toggle start or stop** (start picker when idle, stop when running). Removed the default **Ctrl+Shift+'** / **Cmd+Shift+'** stop chord. **Start…** and **Stop** remain in the Command Palette and can be rebound.
+
 ## [0.0.33] - 2026-05-01
 
 ### Fixed

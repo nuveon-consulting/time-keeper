@@ -2,7 +2,7 @@
   "name": "nuveon-time-keeper",
   "displayName": "Nuveon Time Keeper",
   "description": "Low-friction time tracking for Cursor and VS Code.",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "publisher": "NuveonConsultingPTYLTD",
   "license": "UNLICENSED",
   "icon": "media/logo.png",
@@ -26,7 +26,8 @@
     "onCommand:timeKeeper.statusBarClick",
     "onCommand:timeKeeper.openSummary",
     "onCommand:timeKeeper.buildTimesheetText",
-    "onCommand:timeKeeper.setupMcp"
+    "onCommand:timeKeeper.setupMcp",
+    "onCommand:timeKeeper.toggleStartStop"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -65,18 +66,17 @@
       {
         "command": "timeKeeper.statusBarClick",
         "title": "Nuveon Time Keeper: Status bar menu"
+      },
+      {
+        "command": "timeKeeper.toggleStartStop",
+        "title": "Nuveon Time Keeper: Toggle start or stop"
       }
     ],
     "keybindings": [
       {
-        "command": "timeKeeper.startTask",
+        "command": "timeKeeper.toggleStartStop",
         "key": "ctrl+shift+;",
         "mac": "cmd+shift+;"
-      },
-      {
-        "command": "timeKeeper.stopTask",
-        "key": "ctrl+shift+'",
-        "mac": "cmd+shift+'"
       },
       {
         "command": "timeKeeper.resumePrevious",

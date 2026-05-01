@@ -10,6 +10,7 @@ Implementation manifest: [`packages/extension/package.json`](../../packages/exte
 |------------|--------|---------|
 | `timeKeeper.startTask` | Nuveon Time Keeper: Start… | Quick Pick (**recent rows are templates** + new text). Creates a **new `Task` id** and **new segment** with a **description** only (`start` now, `end` when stopped). Stops any running segment first. |
 | `timeKeeper.stopTask` | Nuveon Time Keeper: Stop | Sets **`end`** on the active segment; updates **resume previous** snapshot. |
+| `timeKeeper.toggleStartStop` | Nuveon Time Keeper: Toggle start or stop | When **idle**, runs the same flow as **Start…**; when a segment is **running**, runs **Stop**. Default keybinding uses this command. |
 | `timeKeeper.switchTask` | Nuveon Time Keeper: Switch… | Same picker and rules as start: stop current segment, then **new task** + **new segment** for the chosen description. |
 | `timeKeeper.resumePrevious` | Nuveon Time Keeper: Resume previous | When **idle**, creates a **new task** (new id) with the **same description** as the last stopped segment. Message if already running or no snapshot. |
 | `timeKeeper.openSummary` | Nuveon Time Keeper: Open summary | Opens an **editor tab** with a **filterable grid** of segments (raw + aligned columns when stored). |
@@ -21,11 +22,10 @@ Implementation manifest: [`packages/extension/package.json`](../../packages/exte
 
 | Command | Windows / Linux | macOS |
 |---------|-----------------|--------|
-| Start task | `ctrl+shift+;` | `cmd+shift+;` |
-| Stop task | `ctrl+shift+'` | `cmd+shift+'` |
+| Toggle start or stop | `ctrl+shift+;` | `cmd+shift+;` |
 | Resume previous | `ctrl+shift+,` | `cmd+shift+,` |
 
-Switch task is available from the **status bar** menu or Command Palette (no default chord).
+**Start…** and **Stop** remain separate commands (palette, status bar, rebinding). **Switch** is available from the **status bar** menu or Command Palette (no default chord).
 
 Users may remap via Keyboard Shortcuts.
 

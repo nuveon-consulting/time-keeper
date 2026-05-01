@@ -8,9 +8,8 @@ Your data is stored in the editor’s **global storage** for this extension (not
 
 ## Quick start
 
-1. **Start timing** — Press `Ctrl+Shift+;` (Windows/Linux) or `Cmd+Shift+;` (macOS), or click **Nuveon Time Keeper** in the **status bar** (bottom) and choose **Start…**. Pick a recent description or choose **New entry…** and type what you are doing.
-2. **Stop** — `Ctrl+Shift+'` / `Cmd+Shift+'`, or use the status bar menu **Stop** while a segment is running.
-3. **See everything** — Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`), run **Nuveon Time Keeper: Open summary**, and use the filters to explore past work.
+1. **Start or stop** — Press `Ctrl+Shift+;` (Windows/Linux) or `Cmd+Shift+;` (macOS) to open the **start** picker when idle, or **stop** the current segment when one is running. Or use the status bar **Start…** / **Stop**.
+2. **See everything** — Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`), run **Nuveon Time Keeper: Open summary**, and use the filters to explore past work.
 
 You can change shortcuts under **File → Preferences → Keyboard Shortcuts** and search for `Nuveon Time Keeper`.
 
@@ -40,6 +39,7 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 |---------|----------------|
 | **Nuveon Time Keeper: Start…** | Opens a picker: **recent descriptions** (as templates) or **New entry…** then asks what you are doing. Starts a **new** segment. If something was already running, it is **stopped** first, then the new segment starts. |
 | **Nuveon Time Keeper: Stop** | Ends the **current** segment and records the end time. |
+| **Nuveon Time Keeper: Toggle start or stop** | When idle, same as **Start…**; when running, same as **Stop**. Default chord (`Ctrl+Shift+;` / `Cmd+Shift+;`) uses this command. |
 | **Nuveon Time Keeper: Switch…** | Same as Start: pick what to do next; the current segment **stops** and a **new** one starts with the new description. |
 | **Nuveon Time Keeper: Resume previous** | When **nothing** is running, starts a **new** segment using the **last stopped** description. If a segment is already running, you are asked to stop it first. |
 | **Nuveon Time Keeper: Open summary** | Opens the **summary** page in the main editor area (see next section). |
@@ -53,11 +53,10 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 
 | Action | Windows / Linux | macOS |
 |--------|-----------------|--------|
-| Start (or switch if something runs) | `Ctrl+Shift+;` | `Cmd+Shift+;` |
-| Stop | `Ctrl+Shift+'` | `Cmd+Shift+'` |
+| Toggle start or stop | `Ctrl+Shift+;` | `Cmd+Shift+;` |
 | Resume previous | `Ctrl+Shift+,` | `Cmd+Shift+,` |
 
-**Switch** is available from the status bar or Command Palette; there is no default key for it alone.
+**Start…**, **Stop**, and **Switch** are available from the status bar or Command Palette; assign your own keys if you want them separate from the toggle.
 
 ---
 

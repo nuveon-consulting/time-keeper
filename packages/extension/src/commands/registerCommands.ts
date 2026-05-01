@@ -50,6 +50,16 @@ export function registerCommands(
   );
 
   disposables.push(
+    vscode.commands.registerCommand("timeKeeper.toggleStartStop", async () => {
+      if (service.getActiveEntry()) {
+        await vscode.commands.executeCommand("timeKeeper.stopTask");
+      } else {
+        await vscode.commands.executeCommand("timeKeeper.startTask");
+      }
+    }),
+  );
+
+  disposables.push(
     vscode.commands.registerCommand("timeKeeper.switchTask", async () => {
       const seg = await pickSegment(service, "Switch to different work");
       if (!seg?.description.trim()) {
