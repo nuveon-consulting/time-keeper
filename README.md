@@ -1,6 +1,6 @@
 # Time Keeper
 
-**Time Keeper** (published as **Nuveon Time Keeper**) is a low-friction time tracker for **Visual Studio Code** and **Cursor**. It records **segments**: each has a short **description**, **start** and **end** times (or **running** until stopped). Only one segment runs at a time. The **summary** view supports filters and **CSV export**; optional **grid-aligned** durations are configurable in settings. An MCP server ships with the extension for editor-assisted timer control when configured.
+**Time Keeper** (published as **Nuveon Time Keeper**) is a low-friction time tracker for **Visual Studio Code** and **Cursor**. It records **segments**: each has a short **description**, **start** and **end** times (or **running** until stopped). Only one segment runs at a time. The **summary** view supports filters and **CSV export**. Optional **alignment interval** (minutes, in settings) adds **rounded** start/end for finished segments on a fixed UTC minute grid—start rounds down, end rounds up—so reported blocks **never fall short** of real duration; that drives timesheet-by-day text and optional aligned columns when enabled. An MCP server ships with the extension for editor-assisted timer control when configured.
 
 For **installing and using** the extension (commands, shortcuts, summary, privacy), see **[packages/extension/README.md](packages/extension/README.md)**.
 
