@@ -14,35 +14,25 @@
 
 ### Added
 
-- Time alignment settings (`timeKeeper.alignmentIntervalMinutes`, `timeKeeper.timesheetUseAlignedValues`), persisted aligned spans on finished segments, and summary / timesheet support for aligned values (`147b6b9`).
-
-## [0.0.30] - 2026-05-01
-
-### Changed
-
-- Version bump (`ef5b819`).
+- Time alignment settings (`timeKeeper.alignmentIntervalMinutes`, `timeKeeper.timesheetUseAlignedValues`), persisted aligned spans on finished segments, and summary / timesheet support for aligned values.
 
 ## [0.0.29] - 2026-05-01
 
 ### Added
 
-- Watch the MCP/timer state file and reload in-process timer state when the ledger is updated externally (`bc65cc5`).
+- Watch the MCP/timer state file and reload in-process timer state when the ledger is updated externally.
 
 ### Fixed
 
-- Resolve `npm audit` issues in the extension dependency tree (`cf3692c`).
+- Resolve `npm audit` issues in the extension dependency tree.
 
 ## [0.0.27] - 2026-04-23
 
 ### Added
 
-- MCP stdio server integration, timer engine, and setup flow; dependency on `@modelcontextprotocol/sdk` and `zod` (`c21265c`).
-- Command title clarification for MCP setup (VS Code or Cursor) (`c21265c`).
+- MCP stdio server integration, timer engine, and setup flow; dependency on `@modelcontextprotocol/sdk` and `zod`.
+- Command title clarification for MCP setup (VS Code or Cursor).
 
 ### Changed
 
-- `npm run package` uses `vsce package` (dependencies bundled as required for MCP) (`c21265c`).
-
-## Earlier releases
-
-Prior manifest bumps and renames (display name, package id, publisher, initial feature set) are visible in `git log -- packages/extension/package.json` and historical commits under `packages/extension/`.
+- `npm run package` uses `vsce package` (dependencies bundled as required for MCP).

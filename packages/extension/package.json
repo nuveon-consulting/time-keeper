@@ -2,7 +2,7 @@
   "name": "nuveon-time-keeper",
   "displayName": "Nuveon Time Keeper",
   "description": "Low-friction time tracking for Cursor and VS Code.",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "publisher": "NuveonConsultingPTYLTD",
   "license": "UNLICENSED",
   "icon": "media/logo.png",
