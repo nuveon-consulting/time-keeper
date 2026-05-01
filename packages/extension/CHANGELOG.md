@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.0] - 2026-05-01
+
+### Changed
+
+- Summary **Export visible rows to CSV** no longer includes a redundant **`duration_ms`** column (`duration_seconds` remains).
+
 ## [0.0.37] - 2026-05-01
 
 ### Changed

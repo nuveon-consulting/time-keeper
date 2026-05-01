@@ -90,7 +90,6 @@ The line under the table shows how many rows match the filters and the **total**
 | `start_iso` | Segment start (ISO-8601 UTC) |
 | `end_iso` | Segment end, or empty while **running** |
 | `duration_seconds` | Decimal seconds (matches the summary at export time) |
-| `duration_ms` | Same duration in whole milliseconds |
 | `aligned_start_iso` | Aligned grid start (UTC), or empty if none |
 | `aligned_end_iso` | Aligned grid end (UTC), or empty if none |
 | `aligned_duration_ms` | Aligned duration in whole milliseconds, or empty if none |
