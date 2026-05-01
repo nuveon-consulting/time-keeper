@@ -20,9 +20,14 @@ This skill governs `packages/extension/CHANGELOG.md` for the **Nuveon Time Keepe
 - **Shape:** Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); version numbers follow the extension manifest (semver appropriate for this pre–1.0 line).
 - **Never paste this block (or similar intro prose) into the changelog file.** The packaged file is only `# Changelog` plus release sections—rule **5**. **Never** put git commit hashes, `git log` commands, or pointers to repository history in `CHANGELOG.md`—those belong in git only.
 
+## When **not** to edit `CHANGELOG.md`
+
+- **During implementation:** Do **not** update `packages/extension/CHANGELOG.md` in the same breath as coding a feature or fix. The manifest **`version`** is not final until you decide to ship or bump; changelog headings **must** match that finalized semver ([rule **1**](#rules)).
+- **When to edit:** Update the changelog only when **`package.json` `"version"` is set to the value you are committing**—typically in the **same commit** as that version bump (release/installer-facing notes), or immediately afterward if you split “implement” from “release” commits. If there is no version bump, defer changelog edits until publish/prepare time unless the user explicitly asks for a backfill or reconcile pass.
+
 ## Trigger
 
-- Version bump or publish for `packages/extension`.
+- Version bump or publish for `packages/extension` (changelog aligns with the **final** bumped version).
 - User asks to update, backfill, or reconcile the extension changelog with commits.
 
 ## Subagent delegation
@@ -47,7 +52,7 @@ Before committing installer-visible packaging or runtime changes under `packages
 
 7. **Do not duplicate the manifest:** The changelog is a readable digest—not `package.json` or exhaustive commit history. Skip noisy internal edits unless they change what installers see or rely on.
 
-8. **Same change as bump:** Prefer updating `CHANGELOG.md` in the **same commit** as `package.json` `"version"` when cutting a release **and** there is something to log per rule **6**—otherwise omit changelog edits for that bump.
+8. **Changelog only when version is final:** Do **not** add release sections while implementation is still in flux. Prefer updating `CHANGELOG.md` in the **same commit** as the **`package.json` `"version"`** you intend to ship (`1.0.1`, etc.) **and** there is something to log per rule **6**—otherwise omit changelog edits for that bump. Mid-development commits should change code/specs only; defer changelog until the commit where semver is finalized.
 
 9. **Nothing to say → no section:** If after applying rule **6** there are zero bullets worth publishing for a release, **do not** add a `## [x.y.z]` block or placeholder-only headings for that version.
 

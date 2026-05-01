@@ -29,6 +29,7 @@ Goals: start, stop, switch, and resume tasks with minimal interaction; optional 
 - Prefer **TypeScript** with **strict** settings in extension code (enabled in `packages/extension/tsconfig.json`).
 - Match existing patterns; avoid unrelated refactors.
 - New commands and keybindings must be declared in `packages/extension/package.json` and documented in [docs/spec/ux-commands.md](docs/spec/ux-commands.md).
+- **`packages/extension/CHANGELOG.md`:** update only when **`package.json` `"version"` is finalized** for the release commit (changelog headings must match that semver)—not on every mid-flight code change. See [.cursor/skills/time-keeper-extension-changelog/SKILL.md](.cursor/skills/time-keeper-extension-changelog/SKILL.md).
 
 ## Build, test, and package
 

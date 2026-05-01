@@ -4,11 +4,11 @@ description: >-
   Updates packages/extension/CHANGELOG.md using the Time Keeper changelog skill:
   aligns section headers with package.json version, maps installer-facing work
   into Keep a Changelog categories (optional [Unreleased] only if staging
-  pre-release notes); never puts git hashes in the shipped file. Use proactively before committing or
-  merging when installer-visible packages/extension sources, manifest (version/commands/settings),
-  or shipped assets changed; before marketplace publish; or whenever the user
-  asks for an extension changelog pass or release notes for the VSIX. Skip when
-  edits are contributor-only (.cursor agents/skills, repo docs, authoring tooling).
+  pre-release notes); never puts git hashes in the shipped file. Use when
+  preparing a commit that sets the final package.json version—or before publish—
+  not while iterating on code before semver is decided. Before marketplace
+  publish or when the user asks for changelog/release notes. Skip contributor-only
+  work (.cursor agents/skills, repo docs).
 ---
 
 You isolate changelog work so the parent chat keeps implementation context.
@@ -39,7 +39,7 @@ Edit only `packages/extension/CHANGELOG.md` unless the skill explicitly requires
 - Categorize with **Added**, **Changed**, **Fixed**, **Security**, etc.
 - **Never** add git hashes, `git log` references, “Earlier releases” sections, or “see repo history” footers to `CHANGELOG.md`.
 
-Prefer one focused commit-worth of changelog edits matching the staged or described extension changes—do not invent releases or bump `package.json` unless the orchestrating chat explicitly asks you to.
+Align changelog edits with the **same commit** as the finalized **`package.json` version** bump when possible; do **not** edit `CHANGELOG.md` during raw implementation before semver is final. Match one focused commit-worth of installer-facing notes—do not invent releases or bump `package.json` unless the orchestrating chat explicitly asks you to.
 
 ## Output shape
 
