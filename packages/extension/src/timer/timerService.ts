@@ -51,6 +51,11 @@ export class TimerService implements vscode.Disposable {
   async resumePrevious(): Promise<boolean> {
     return this.engine.resumePrevious();
   }
+
+  /** Sync in-memory state from disk when another process (e.g. MCP stdio) updates the ledger. */
+  async reloadFromDisk(): Promise<void> {
+    await this.engine.reloadFromDisk();
+  }
 }
 
 export async function hydrateTimerService(

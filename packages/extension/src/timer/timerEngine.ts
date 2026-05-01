@@ -1,6 +1,12 @@
 import { randomUUID } from "node:crypto";
 import type { JsonlStore } from "../storage/jsonlStore";
-import { type LastStoppedTask, type PersistedState, type Task, type TimeEntry } from "../types";
+import {
+  emptyState,
+  type LastStoppedTask,
+  type PersistedState,
+  type Task,
+  type TimeEntry,
+} from "../types";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -42,6 +48,13 @@ export class TimerEngine {
 
   getLastStopped(): LastStoppedTask | null {
     return this.state.lastStopped;
+  }
+
+  /** Reload state from disk (e.g. after MCP or another writer updates the store). */
+  async reloadFromDisk(): Promise<void> {
+    const { state, corrupt } = await this.store.load();
+    this.state = this.repairInvariants(corrupt ? emptyState() : state);
+    this.onAfterPersist?.();
   }
 
   /**
