@@ -8,6 +8,7 @@
   },
   "scripts": {
     "bump-install-extension": "bash ./scripts/bump-install-extension.sh",
-    "install-extension": "npm install --prefix packages/extension"
+    "install-extension": "npm install --prefix packages/extension",
+    "publish-marketplace": "bash ./scripts/publish-marketplace.sh"
   }
 }
