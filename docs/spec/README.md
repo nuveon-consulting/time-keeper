@@ -1,18 +1,16 @@
 # Time Keeper specifications
 
-Authoritative product and technical notes for Time Keeper. **v1** targets a **Cursor/VS Code extension**; a native desktop shell is documented as a later phase.
+Authoritative product and technical notes for **Nuveon Time Keeper**, the VS Code / Cursor extension in [`packages/extension`](../../packages/extension).
 
 ## Index
 
 | Document | Purpose |
 |----------|---------|
-| [product.md](product.md) | Problem, personas, v1 stories, UX principles |
+| [product.md](product.md) | Problem, personas, scope, user stories, UX principles |
 | [ux-commands.md](ux-commands.md) | Commands, keybindings, status bar |
 | [architecture.md](architecture.md) | Extension structure, state, persistence |
-| [persistence.md](persistence.md) | Storage tiers, optional local DB, remote sync |
-| [speech-to-text.md](speech-to-text.md) | STT providers, capture model, secrets, failures |
-| [mcp.md](mcp.md) | MCP server for AI-assisted timer control, tools, persistence, security |
-| [roadmap-native.md](roadmap-native.md) | Deferred macOS/Windows tray app and shared core |
+| [persistence.md](persistence.md) | Storage design context (shipped store: see architecture) |
+| [mcp.md](mcp.md) | Bundled MCP server, tools, persistence, security |
 
 ## Glossary
 
@@ -21,7 +19,7 @@ Authoritative product and technical notes for Time Keeper. **v1** targets a **Cu
 | **Task** | One **description** string per row (each segment is a new task id); used for labels and aggregation. |
 | **Time entry** | A contiguous interval with **start** and **end** timestamps on a task; **duration** is `end − start` (or unset while running). |
 | **Active timer** | The extension’s notion of a running clock tied to the current task (or idle). |
-| **Session** | Optional grouping (e.g. workday); may be inferred later for reporting. |
+| **Session** | Optional grouping (e.g. workday); not used in the current data model. |
 | **MCP** | [Model Context Protocol](https://modelcontextprotocol.io/) server exposing timer tools to user-configured AI clients. |
 
 ## Conventions

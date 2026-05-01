@@ -1,13 +1,12 @@
 # Architecture
 
-## v1 component
+## Components
 
 | Piece | Responsibility |
 |-------|----------------|
-| `packages/extension` | VS Code / Cursor extension: commands, UI, STT client, persistence adapter |
-| `packages/mcp` (or `packages/mcp-server`, TBD) | MCP server: AI-facing tools for timer control + state, same persistence contract as extension ([mcp.md](mcp.md)) |
-| (future) `packages/core` | Shared task/timer logic and types for extension + native shell |
-| (future) `apps/desktop` | Tauri tray / global shortcuts |
+| [`packages/extension`](../../packages/extension) | VS Code / Cursor extension: commands, status bar, summary webview, JSON persistence, bundled MCP (`src/mcp`, built to `out/mcp/index.js`) |
+
+The MCP server shares the same timer engine contract and storage path as the UI (see [mcp.md](mcp.md)).
 
 ## Activation
 
@@ -17,7 +16,7 @@
 ## Timer state machine
 
 ```mermaid
-stateDiagram_v2
+stateDiagram-v2
   [*] --> Idle
   Idle --> Running: startTask
   Running --> Idle: stopTask
@@ -32,27 +31,20 @@ stateDiagram_v2
 
 ## Clock semantics
 
-- **Elapsed display while running:** prefer monotonic time sources to avoid skew from system sleep adjustments mid-interval.
-- **Persisted boundaries:** store **UTC or local ISO-8601** start/end for reporting; document timezone handling in export (future).
+- **Elapsed display while running:** status bar uses wall-clock elapsed from persisted segment start (`Date.now() - Date.parse(start)`), refreshed every 500ms.
 
-## Persistence (v1 — implemented)
+## Persistence (implemented)
 
 **Chosen format:** single versioned JSON snapshot **`time-keeper-state.v1.json`** under `ExtensionContext.globalStorageUri`, written with **temp file + rename** for atomic replace.
 
-- **Schema** (`PersistedState`): `version: 2` (`version: 1` files are migrated on load), `tasks` map (`id` → `Task` with **`description` only**), `entries` array (`TimeEntry` with `start`, `end: null` while running, optional `alignedStart` + `alignedDurationMs` after close when alignment is enabled), `lastStopped` (`taskId`, `description`). **Summary:** command **`timeKeeper.openSummary`** opens an **editor-area webview** with a **table** of segments (start, end, duration, aligned start/end/duration derived for display when stored, description) and **client-side filters** (description substring, duration min/max seconds, start/end time modes: any, calendar day, inclusive day range, or between two local date-times). Running rows refresh about once per second. **Export visible rows to CSV** sends filtered rows from the webview to the extension host, then **`showSaveDialog`** + **`workspace.fs.writeFile`** (UTF-8 with BOM, RFC-style escaping for commas/quotes/newlines).
+- **Schema** (`PersistedState`): `version: 2` (`version: 1` files are migrated on load), `tasks` map (`id` → `Task` with **`description` only**), `entries` array (`TimeEntry` with `start`, `end: null` while running, optional `alignedStart` + `alignedDurationMs` after close when alignment is enabled), `lastStopped` (`taskId`, `description`). **Summary:** command **`timeKeeper.openSummary`** opens an **editor-area webview** with a **table** of segments (start, end, duration, aligned columns when stored, description) and **client-side filters** (description substring, duration min/max seconds, start/end time modes: any, calendar day, inclusive day range, or between two local date-times). Running rows refresh about once per second. **Export visible rows to CSV** sends filtered rows from the webview to the extension host, then **`showSaveDialog`** + **`workspace.fs.writeFile`** (UTF-8 with BOM, RFC-style escaping for commas/quotes/newlines).
 - **Module:** [`packages/extension/src/storage/jsonlStore.ts`](../../packages/extension/src/storage/jsonlStore.ts) (`JsonlStore` class — name retained from planning; implementation is snapshot JSON, not line-delimited JSONL).
 
-**Alternatives for later:** JSONL append-only or **SQLite** ([persistence.md](persistence.md)) if query/reporting needs grow.
+Store location remains **global storage**, not the workspace.
 
-Store location remains **global storage**, not the workspace, unless an explicit “project timesheet” mode is added later.
+Discussion of alternative stores and sync patterns (not used by the current extension) is in [persistence.md](persistence.md).
 
-**Local PostgreSQL / MongoDB** and **remote synchronization** are **not v1 requirements**; they are optional evolutions (local sidecar service + sync worker, or direct extension-to-API). See [persistence.md](persistence.md) for tradeoffs, diagrams, and sync patterns.
-
-## STT
-
-- See [speech-to-text.md](speech-to-text.md). Extension hosts HTTP client to cloud STT; no long-lived local server required for v1.
-
-## Extension module layout (suggested)
+## Extension module layout
 
 Keep files small and testable:
 
@@ -60,13 +52,11 @@ Keep files small and testable:
 - `commands/*` — command handlers
 - `timer/*` — state machine + persistence port
 - `storage/jsonlStore.ts` — load/save persisted state (v1 → v2 migration)
-- `speech/*` — capture + provider adapter (stub README only)
 - `ui/statusBar.ts` — status bar item(s)
 - `ui/summaryPanel.ts` — Summary **webview panel** (table + push updates)
 - `media/summaryPanel.{css,js}` — webview UI for filters and grid
-
-Adjust names to match implementation.
+- `mcp/*` — bundled MCP entrypoint
 
 ## MCP (AI control)
 
-See [mcp.md](mcp.md). The MCP server is a **separate entrypoint** from the extension host but must honor the same **timer state machine** and **persistence schema** so assistants and the IDE stay consistent.
+See [mcp.md](mcp.md). The MCP server is a **separate Node entrypoint** (`out/mcp/index.js`) shipped in the VSIX; it uses the same **timer state machine** and **persistence schema** as the extension host when `TIME_KEEPER_GLOBAL_STORAGE` matches the extension’s global storage directory.

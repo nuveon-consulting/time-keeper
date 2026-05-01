@@ -1,6 +1,6 @@
 # Time Keeper
 
-**Time Keeper** is a low-friction time tracker for developers. Version 1 ships as a **Visual Studio Code** and **Cursor** extension (cross-platform): start, stop, and resume work segments with minimal interaction, optional push-to-talk notes, and a summary view with filters and CSV export.
+**Time Keeper** (published as **Nuveon Time Keeper**) is a low-friction time tracker for **Visual Studio Code** and **Cursor**. It records **segments**: each has a short **description**, **start** and **end** times (or **running** until stopped). Only one segment runs at a time. The **summary** view supports filters and **CSV export**; optional **grid-aligned** durations are configurable in settings. An MCP server ships with the extension for editor-assisted timer control when configured.
 
 For **installing and using** the extension (commands, shortcuts, summary, privacy), see **[packages/extension/README.md](packages/extension/README.md)**.
 
@@ -8,15 +8,13 @@ For **installing and using** the extension (commands, shortcuts, summary, privac
 
 | Path | Purpose |
 |------|---------|
-| [`packages/extension`](packages/extension) | VS Code / Cursor extension (v1) |
-| `packages/core` *(planned)* | Shared domain and persistence when extracted |
-| `apps/desktop` *(planned)* | Future optional native shell (e.g. Tauri) |
+| [`packages/extension`](packages/extension) | VS Code / Cursor extension (commands, UI, persistence, bundled MCP entrypoint) |
 | [`docs/spec`](docs/spec) | Product and technical specifications |
 | [`.cursor/skills`](.cursor/skills) | Project-local Cursor agent skills |
 
 ## Specifications
 
-Authoritative behavior, UX, architecture, speech, MCP, and persistence notes live under **[docs/spec](docs/spec/README.md)**.
+Behavior, UX, architecture, MCP, and persistence notes live under **[docs/spec](docs/spec/README.md)**.
 
 ## Developing the extension
 

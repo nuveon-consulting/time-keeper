@@ -2,45 +2,42 @@
 
 ## Goal
 
-Expose Time Keeper’s **core timer operations** through an **[MCP](https://modelcontextprotocol.io/) server** so a **user-configured** AI assistant (for example Cursor’s agent) can start, stop, switch, and resume tasks and **read active timer state**, using the same semantics as the IDE extension.
+Expose Time Keeper’s **timer operations** through an **[MCP](https://modelcontextprotocol.io/) server** so a **user-configured** AI assistant (for example Cursor’s agent) can start, stop, switch, and resume tasks and **read active timer state**, using the same semantics as the IDE extension.
 
-This is **opt-in**: the user adds the server to their MCP configuration; nothing runs or listens until they do.
+This is **opt-in**: the user adds the server to their MCP configuration; the stdio process does not start until the editor launches it.
 
 ## Relationship to the extension
 
-- **Behavioral parity:** MCP tools must match the flows in [product.md](product.md) and the command IDs in [ux-commands.md](ux-commands.md) (`timeKeeper.startTask`, `timeKeeper.stopTask`, `timeKeeper.switchTask`, `timeKeeper.resumePrevious`). Natural-language intent stays in the assistant; the server exposes **discrete, idempotent-friendly** operations.
-- **Persistence:** The server reads and updates the **same versioned state** as the extension ([architecture.md](architecture.md) — `timeKeeper-state.v1.json` and schema rules). Implementation must avoid corrupting snapshots (reuse the extension’s invariants: no overlapping active intervals, atomic replace where applicable). If two writers can run concurrently (extension UI + MCP), last write wins at the file level; the extension **watches** that snapshot and **reloads** in-memory state so the status bar and summary stay aligned after MCP (or other external) updates.
+- **Behavioral parity:** MCP tools match the flows in [product.md](product.md) and the command IDs in [ux-commands.md](ux-commands.md) (`timeKeeper.startTask`, `timeKeeper.stopTask`, `timeKeeper.switchTask`, `timeKeeper.resumePrevious`). Natural-language intent stays in the assistant; the server exposes **discrete** operations.
+- **Persistence:** The server reads and updates the **same versioned state** as the extension ([architecture.md](architecture.md) — `time-keeper-state.v1.json` and schema rules). Implementation avoids corrupting snapshots (same invariants: no overlapping active intervals, atomic replace). If two writers can run concurrently (extension UI + MCP), last write wins at the file level; the extension **reloads** persisted state so the status bar and summary stay aligned after MCP updates.
 - **Alignment interval:** The stdio MCP process does not read VS Code settings. To compute the same **`alignedStart` / `alignedDurationMs`** fields as `timeKeeper.alignmentIntervalMinutes` when MCP closes segments, set optional **`TIME_KEEPER_ALIGNMENT_INTERVAL_MINUTES`** (integer minutes, 1–1440). The extension command **Nuveon Time Keeper: Set up MCP** merges this env when the workspace setting is &gt; 0 until you edit settings or MCP config separately.
-- **Packaging:** A dedicated workspace package (for example `packages/mcp` or `packages/mcp-server`) is the expected home for the server entrypoint and tool handlers; exact layout follows the repo when added.
+- **Packaging:** The server entrypoint is **`packages/extension/out/mcp/index.js`**, built from [`packages/extension/src/mcp/index.ts`](../../packages/extension/src/mcp/index.ts) and included in the VSIX. **Nuveon Time Keeper: Set up MCP** writes `mcp.json` entries that run **`node`** on that path with **`TIME_KEEPER_GLOBAL_STORAGE`** set to the extension’s `globalStorageUri` so MCP and the UI share one ledger.
 
-## Intended tool surface (v1)
+## Shipped tools (stdio)
 
-Names are illustrative until implementation ships; each tool should return structured errors the model can interpret (e.g. “already idle”, “no previous task”).
+| Tool | Role |
+|------|------|
+| `timeKeeper_get_state` | Returns running vs idle, active task/segment (if any), and last stopped task info. |
+| `timeKeeper_start_task` | Start timing a task; closes any running segment first (same as extension start). |
+| `timeKeeper_stop_task` | Stop the active segment; updates last-stopped for resume. |
+| `timeKeeper_switch_task` | Stop current (if any) and start the named task. |
+| `timeKeeper_resume_previous` | When idle, start a new segment with the last stopped description; error text if already running or no previous segment. |
 
-| Concern | Illustrative capability |
-|---------|-------------------------|
-| Start | Begin timing a named task; if something is running, close that interval first (same as start/switch in UX). |
-| Stop | End the active interval; refresh **resume previous** target. |
-| Switch | Stop current (if any) and start the named task. |
-| Resume | Resume last stopped task when idle; error if already running or no previous. |
-| Observe | Return active segment **description**, start time, elapsed summary, and idle/running state. |
-
-Optional later: list recent tasks or entries for richer agent context (still read-only or clearly scoped writes).
+Tool handlers use the same `TimerEngine` and `JsonlStore` as the extension host.
 
 ## Security and trust
 
-- **Local-first:** Prefer **stdio** MCP or a **localhost-only** transport; do not require cloud credentials for core timer control.
-- **No broad filesystem access** beyond the agreed state file path (and any explicit user-configured paths).
-- **Secrets:** Timer MCP does not embed STT or cloud API keys; if future tools call external services, follow [AGENTS.md](../../AGENTS.md) secret handling.
-- **Telemetry:** Off by default; no silent exfiltration of task descriptions.
+- **Local-first:** **stdio** MCP; no network port opened by the server for core timer control.
+- **No broad filesystem access** beyond the persisted state directory supplied via **`TIME_KEEPER_GLOBAL_STORAGE`** (written by **Set up MCP**).
+- **Secrets:** Core timer control needs no API keys; follow [AGENTS.md](../../AGENTS.md) for any optional third-party integrations.
 
 ## Out of scope (MCP-specific)
 
 - Replacing the extension as the primary UI; MCP complements keyboard/status-bar flows.
-- Multi-user or team **sync** via MCP (see [persistence.md](persistence.md) for product direction on sync).
+- Multi-user or team **sync** via MCP (see [persistence.md](persistence.md) for storage context).
 - Granting AI control **without** the user having enabled the MCP server in their client configuration.
 
-## Acceptance notes
+## Documentation
 
-- When MCP ships, add the server to contributor docs (how to run locally, Cursor `mcp.json` fragment) beside [packages/extension/README.md](../../packages/extension/README.md).
-- Extend [ux-commands.md](ux-commands.md) or this file with **final tool names and JSON schemas** once implemented.
+- End-user setup is covered by **Nuveon Time Keeper: Set up MCP** and [packages/extension/README.md](../../packages/extension/README.md).
+- Command IDs for parity checks remain in [ux-commands.md](ux-commands.md).

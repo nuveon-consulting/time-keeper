@@ -22,7 +22,6 @@ Some users want **menu bar / system tray** access, **global shortcuts** outside 
 ## IPC and packaging
 
 - Define a **stable file or SQLite schema** for time entries so extension and desktop could share data later. For **optional local PostgreSQL/MongoDB** or **remote sync**, see [persistence.md](persistence.md).
-- Avoid duplicating STT logic: same provider interface; native app may reuse TS in webview or call Rust HTTP client.
 
 ## Exit criteria before starting native work
 

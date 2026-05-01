@@ -23,12 +23,14 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 | **Idle** | `Nuveon Time Keeper` with a watch icon. |
 | **Running** | Watch icon, your **description** (truncated if long), and a **live** timer (`mm:ss`). |
 
-**Click** the status bar item to open a small menu:
+**Click** the status bar item to open a small menu (same entries as **Nuveon Time Keeper: Status bar menu**):
 
 - **Open summary…** — Opens the full summary table (see below).
-- **Start…** or **Switch…** — When nothing is running, you can start or (after starting) switch from the same flows as the commands.
+- **Build timesheet text…** — Pick a **local calendar day**; opens a text buffer with total duration that day and sorted task lines (behavior follows settings **Timesheet: use aligned values** and **Alignment interval**).
+- **Set up MCP (VS Code or Cursor)…** — Merges MCP configuration so assistants can use the bundled timer tools against your ledger (optional).
+- **Start…** / **Switch…** — When idle, **Start…**; when a segment is running, **Switch…** (same picker behavior as the commands).
 - **Stop** — Ends the current segment (when one is running).
-- **Resume previous** — When idle, starts a **new** segment with the **same description** as the one you stopped last (handy when you jump back to prior work).
+- **Resume previous** — When idle, starts a **new** segment with the **same description** as the last stopped segment.
 
 ---
 
@@ -41,7 +43,9 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 | **Nuveon Time Keeper: Switch…** | Same as Start: pick what to do next; the current segment **stops** and a **new** one starts with the new description. |
 | **Nuveon Time Keeper: Resume previous** | When **nothing** is running, starts a **new** segment using the **last stopped** description. If a segment is already running, you are asked to stop it first. |
 | **Nuveon Time Keeper: Open summary** | Opens the **summary** page in the main editor area (see next section). |
-| **Nuveon Time Keeper: Status bar menu** | Same choices as **clicking** the status bar (mostly for rebinding keys). |
+| **Nuveon Time Keeper: Build timesheet text…** | Quick Pick a **local calendar day** → opens a plaintext buffer with that day’s totals and task bullets (aligned vs raw per settings). |
+| **Nuveon Time Keeper: Set up MCP (VS Code or Cursor)…** | Guides merge of `mcp.json` for the bundled stdio MCP server. |
+| **Nuveon Time Keeper: Status bar menu** | Same choices as **clicking** the status bar (for rebinding keys). |
 
 ---
 
@@ -66,6 +70,7 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 | **Start** | When the segment started (your **local** date and time). |
 | **End** | When it ended, or **… running** if it is still open. |
 | **Duration** | Length of the segment. **Running** rows show a live duration and a `*` marker. |
+| **Aligned start / end / duration** | When **Alignment interval** is enabled in settings and the segment is **finished**, grid-aligned timestamps and duration; otherwise **—**. |
 | **Description** | The text you entered for that segment. |
 
 **Toolbar filters** (all optional):
@@ -87,6 +92,9 @@ The line under the table shows how many rows match the filters and the **total**
 | `end_iso` | Segment end, or empty while **running** |
 | `duration_seconds` | Decimal seconds (matches the summary at export time) |
 | `duration_ms` | Same duration in whole milliseconds |
+| `aligned_start_iso` | Aligned grid start (UTC), or empty if none |
+| `aligned_end_iso` | Aligned grid end (UTC), or empty if none |
+| `aligned_duration_ms` | Aligned duration in whole milliseconds, or empty if none |
 | `description` | Your description text (quoted in CSV if needed) |
 | `running` | `yes` or `no` |
 
