@@ -1,6 +1,7 @@
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
+import { setImmediate as idleTurn } from "node:timers/promises";
 import * as vscode from "vscode";
 import { normalizeAlignmentMinutes } from "../timer/alignment";
 import {
@@ -200,6 +201,14 @@ async function writeVsCodeUserMcp(ctx: vscode.ExtensionContext): Promise<string>
   return filePath;
 }
 
+/**
+ * Yield one event-loop turn before driving Settings UI. Without this, Cursor can hang when
+ * `mcp.json` was just touched and `workbench.action.openSettings` runs in the same turn as the QuickPick teardown.
+ */
+async function yieldBeforeOpenSettings(): Promise<void> {
+  await idleTurn();
+}
+
 async function openMcpSettingsUi(): Promise<void> {
   const attempts: readonly (readonly [string, string])[] = [
     ["workbench.action.openSettings", "Model Context Protocol"],
@@ -342,6 +351,7 @@ export async function runSetupMcp(context: vscode.ExtensionContext): Promise<voi
 
     if (target === "vscode-user") {
       const filePath = await writeVsCodeUserMcp(context);
+      await yieldBeforeOpenSettings();
       await openMcpSettingsUi();
       const openJson = "Open user profile mcp.json";
       const picked = await vscode.window.showInformationMessage(
@@ -356,6 +366,7 @@ export async function runSetupMcp(context: vscode.ExtensionContext): Promise<voi
 
     if (target === "cursor-user") {
       const filePath = await writeCursorGlobalMcp(context);
+      await yieldBeforeOpenSettings();
       await openMcpSettingsUi();
       const openJson = "Open user profile mcp.json";
       const picked = await vscode.window.showInformationMessage(
