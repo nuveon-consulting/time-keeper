@@ -17,7 +17,7 @@ Developers need to **capture time on tasks** without breaking flow. Traditional 
 - Stop the active segment (sets `end` on the current `TimeEntry`).
 - **Resume previous:** starts a **new task record** (new id) with the **same description** as the segment you last stopped, and a **new time segment** with a fresh **start**; **duration** is derived when you stop (`end` − `start`).
 - **Summary:** **Open summary** shows every **segment** in a main-window **table** with filters (description, duration, start/end calendar day, day range, or local date-time range), optional **aligned** columns when alignment is enabled, and **CSV export** of visible rows.
-- **Timesheet text:** **Build timesheet text…** produces a plaintext buffer for a chosen local calendar day (raw vs aligned overlap per settings).
+- **Timesheet text:** **Build timesheet text…** asks for a **start date** and **end date** (end defaults to the same day), then produces a plaintext buffer with **one block per calendar day that has logged time** in that inclusive range (header `YYYY-MM-DD [hours]` — two significant figures, ceiling — and sorted task lines; raw vs aligned overlap per settings). Days with no time are omitted.
 - Low-friction UX: commands, default keybindings, status bar indicator, Quick Pick where disambiguation is needed.
 - **MCP:** bundled stdio server plus **Set up MCP** command so user-configured assistants can use start / stop / switch / resume and read timer state under the same persistence rules as the UI. Spec: [mcp.md](mcp.md).
 

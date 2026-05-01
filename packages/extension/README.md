@@ -25,7 +25,7 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 **Click** the status bar item to open a small menu (same entries as **Nuveon Time Keeper: Status bar menu**):
 
 - **Open summary…** — Opens the full summary table (see below).
-- **Build timesheet text…** — Pick a **local calendar day**; opens a text buffer with total duration that day and sorted task lines (behavior follows settings **Timesheet: use aligned values** and **Alignment interval**).
+- **Build timesheet text…** — Pick **start** and **end** local dates (end defaults to match start); opens a text buffer with **one block per day that has logged time** (`YYYY-MM-DD [hours]` — two significant figures, rounded up — then sorted task lines), separated by blank lines; days with no time are skipped (behavior follows settings **Timesheet: use aligned values** and **Alignment interval**).
 - **Set up MCP (VS Code or Cursor)…** — Merges MCP configuration so assistants can use the bundled timer tools against your ledger (optional).
 - **Start…** / **Switch…** — When idle, **Start…**; when a segment is running, **Switch…** (same picker behavior as the commands).
 - **Stop** — Ends the current segment (when one is running).
@@ -43,7 +43,7 @@ You can change shortcuts under **File → Preferences → Keyboard Shortcuts** a
 | **Nuveon Time Keeper: Switch…** | Same as Start: pick what to do next; the current segment **stops** and a **new** one starts with the new description. |
 | **Nuveon Time Keeper: Resume previous** | When **nothing** is running, starts a **new** segment using the **last stopped** description. If a segment is already running, you are asked to stop it first. |
 | **Nuveon Time Keeper: Open summary** | Opens the **summary** page in the main editor area (see next section). |
-| **Nuveon Time Keeper: Build timesheet text…** | Quick Pick a **local calendar day** → opens a plaintext buffer with that day’s totals and task bullets (aligned vs raw per settings). |
+| **Nuveon Time Keeper: Build timesheet text…** | Quick Pick **start date**, then **end date** (same as start for a single day) → plaintext buffer with **one summary block per day that has logged time** in that inclusive range (aligned vs raw per settings). |
 | **Nuveon Time Keeper: Set up MCP (VS Code or Cursor)…** | Guides merge of `mcp.json` for the bundled stdio MCP server. |
 | **Nuveon Time Keeper: Status bar menu** | Same choices as **clicking** the status bar (for rebinding keys). |
 

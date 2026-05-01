@@ -42,6 +42,43 @@ export function formatDurationMs(ms: number): string {
   return `${s}s`;
 }
 
+/**
+ * Ceiling to `significantDigits` significant figures (for positive values).
+ */
+export function ceilToSignificantFigures(value: number, significantDigits: number): number {
+  if (!Number.isFinite(value) || value === 0) {
+    return 0;
+  }
+  const x = Math.abs(value);
+  const exp = Math.floor(Math.log10(x));
+  const pow = significantDigits - 1 - exp;
+  const mult = 10 ** pow;
+  const ceilScaled = Math.ceil(x * mult - Number.EPSILON);
+  const rounded = ceilScaled / mult;
+  return value < 0 ? -rounded : rounded;
+}
+
+function formatHoursPlainNoExponent(hours: number): string {
+  const p = hours.toPrecision(2);
+  if (!/[eE]/.test(p)) {
+    return p;
+  }
+  return Number(hours.toPrecision(2)).toString();
+}
+
+/**
+ * Hours for timesheet headers: **two significant figures**, **always rounded up**
+ * (ceiling at that precision), e.g. `0.25 hrs`, `4.5 hrs`.
+ */
+export function formatDurationDecimalHours(ms: number): string {
+  const hours = ms / 3_600_000;
+  if (!Number.isFinite(hours) || hours <= 0) {
+    return "0.0 hrs";
+  }
+  const ceiled = ceilToSignificantFigures(hours, 2);
+  return `${formatHoursPlainNoExponent(ceiled)} hrs`;
+}
+
 /** Resolved wall span for timesheet overlap (UTC ms). */
 function timesheetSegmentSpanMs(
   entry: TimeEntry,
@@ -70,25 +107,25 @@ function timesheetSegmentSpanMs(
 }
 
 /**
- * Milliseconds of each entry overlapping the given local calendar day,
- * keyed by task description. Running segments use `nowMs` as the open end.
- *
- * When `useAlignedSpans` is true, completed entries with `alignedStart` + `alignedDurationMs`
- * use that span; others still use raw `start`/`end`.
+ * Milliseconds overlapping each task description for an inclusive local-date range
+ * `[startYmd, endYmd]` (aligned vs raw per options).
  */
-export function durationByDescriptionForLocalDay(
+export function durationByDescriptionForLocalDayRange(
   state: PersistedState,
-  ymd: string,
+  startYmd: string,
+  endYmd: string,
   nowMs: number,
   options?: { useAlignedSpans?: boolean },
 ): { totalMs: number; byDescription: Map<string, number> } {
   const useAlignedSpans = options?.useAlignedSpans === true;
-  const bounds = parseLocalYMD(ymd);
+  const startBounds = parseLocalYMD(startYmd);
+  const endBounds = parseLocalYMD(endYmd);
   const byDescription = new Map<string, number>();
-  if (!bounds) {
+  if (!startBounds || !endBounds || startBounds.startMs > endBounds.startMs) {
     return { totalMs: 0, byDescription };
   }
-  const { startMs: dayStart, endExclusiveMs: dayEnd } = bounds;
+  const rangeStart = startBounds.startMs;
+  const rangeEnd = endBounds.endExclusiveMs;
   let totalMs = 0;
 
   for (const entry of state.entries) {
@@ -105,8 +142,8 @@ export function durationByDescriptionForLocalDay(
       continue;
     }
     const { start: segStart, end: segEnd } = span;
-    const overlapStart = Math.max(segStart, dayStart);
-    const overlapEnd = Math.min(segEnd, dayEnd);
+    const overlapStart = Math.max(segStart, rangeStart);
+    const overlapEnd = Math.min(segEnd, rangeEnd);
     const overlap = overlapEnd - overlapStart;
     if (overlap <= 0) {
       continue;
@@ -118,8 +155,25 @@ export function durationByDescriptionForLocalDay(
   return { totalMs, byDescription };
 }
 
-export function buildTimesheetBody(ymd: string, totalMs: number, descriptions: readonly string[]): string {
-  const head = `${formatDurationMs(totalMs)}\n${ymd}`;
+/**
+ * Milliseconds of each entry overlapping the given local calendar day,
+ * keyed by task description. Running segments use `nowMs` as the open end.
+ *
+ * When `useAlignedSpans` is true, completed entries with `alignedStart` + `alignedDurationMs`
+ * use that span; others still use raw `start`/`end`.
+ */
+export function durationByDescriptionForLocalDay(
+  state: PersistedState,
+  ymd: string,
+  nowMs: number,
+  options?: { useAlignedSpans?: boolean },
+): { totalMs: number; byDescription: Map<string, number> } {
+  return durationByDescriptionForLocalDayRange(state, ymd, ymd, nowMs, options);
+}
+
+/** One calendar day: `YYYY-MM-DD [hours]` header line (2 sig figs, ceil), then sorted task bullets. */
+export function buildTimesheetDayBlock(ymd: string, totalMs: number, descriptions: readonly string[]): string {
+  const head = `${ymd} [${formatDurationDecimalHours(totalMs)}]`;
   if (descriptions.length === 0) {
     return head;
   }
@@ -127,8 +181,34 @@ export function buildTimesheetBody(ymd: string, totalMs: number, descriptions: r
   return `${head}\n${bullets}`;
 }
 
-async function pickLocalCalendarDay(): Promise<string | undefined> {
-  type DayPick = vscode.QuickPickItem & { readonly ymd: string | null };
+function iterateInclusiveLocalYmds(startYmd: string, endYmd: string): string[] {
+  const startB = parseLocalYMD(startYmd);
+  const endB = parseLocalYMD(endYmd);
+  if (!startB || !endB || startB.startMs > endB.startMs) {
+    return [];
+  }
+  const out: string[] = [];
+  const d = new Date(startB.startMs);
+  const rangeEndExclusive = endB.endExclusiveMs;
+  while (d.getTime() < rangeEndExclusive) {
+    out.push(localYMD(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+/** Plaintext timesheet: one block per local calendar day, separated by a blank line. */
+export function buildTimesheetBodyFromDayBlocks(
+  sections: readonly { ymd: string; totalMs: number; descriptions: readonly string[] }[],
+): string {
+  return sections
+    .map((s) => buildTimesheetDayBlock(s.ymd, s.totalMs, s.descriptions))
+    .join("\n\n");
+}
+
+type DayPick = vscode.QuickPickItem & { readonly ymd: string | null };
+
+async function pickLocalCalendarDay(title: string, placeHolder: string): Promise<string | undefined> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const items: DayPick[] = [];
@@ -147,8 +227,8 @@ async function pickLocalCalendarDay(): Promise<string | undefined> {
   items.push({ label: "Other date…", description: "Enter YYYY-MM-DD", ymd: null });
 
   const picked = await vscode.window.showQuickPick(items, {
-    title: "Nuveon Time Keeper — timesheet date",
-    placeHolder: "Choose the calendar day",
+    title,
+    placeHolder,
   });
   if (!picked) {
     return undefined;
@@ -174,19 +254,104 @@ async function pickLocalCalendarDay(): Promise<string | undefined> {
   return raw?.trim();
 }
 
+async function pickLocalCalendarEndDay(startYmd: string): Promise<string | undefined> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const items: DayPick[] = [
+    {
+      label: `Same as start (${startYmd})`,
+      description: "Single calendar day",
+      ymd: startYmd,
+    },
+  ];
+  for (let i = 0; i < 21; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const ymd = localYMD(d);
+    if (ymd === startYmd) {
+      continue;
+    }
+    const label =
+      i === 0 ? `Today (${ymd})` : i === 1 ? `Yesterday (${ymd})` : ymd;
+    items.push({
+      label,
+      description: d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }),
+      ymd,
+    });
+  }
+  items.push({ label: "Other date…", description: "Enter YYYY-MM-DD", ymd: null });
+
+  const picked = await vscode.window.showQuickPick(items, {
+    title: "Nuveon Time Keeper — timesheet end date",
+    placeHolder: `End date (default: ${startYmd})`,
+  });
+  if (!picked) {
+    return undefined;
+  }
+  if (picked.ymd !== null) {
+    return picked.ymd;
+  }
+  const raw = await vscode.window.showInputBox({
+    title: "Timesheet end date",
+    prompt: `Local calendar day as YYYY-MM-DD (on or after ${startYmd})`,
+    placeHolder: startYmd,
+    validateInput: (v) => {
+      const t = v.trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) {
+        return "Use YYYY-MM-DD";
+      }
+      if (!parseLocalYMD(t)) {
+        return "Invalid date";
+      }
+      if (t < startYmd) {
+        return `Must be on or after ${startYmd}`;
+      }
+      return undefined;
+    },
+  });
+  return raw?.trim();
+}
+
 export async function runBuildTimesheetText(service: TimerService): Promise<void> {
-  const ymd = await pickLocalCalendarDay();
-  if (!ymd) {
+  const startYmd = await pickLocalCalendarDay(
+    "Nuveon Time Keeper — timesheet start date",
+    "Choose the start date",
+  );
+  if (!startYmd) {
     return;
+  }
+  let endYmd: string | undefined;
+  for (;;) {
+    endYmd = await pickLocalCalendarEndDay(startYmd);
+    if (!endYmd) {
+      return;
+    }
+    if (endYmd >= startYmd) {
+      break;
+    }
+    void vscode.window.showErrorMessage("End date must be on or after the start date.");
   }
   const state = service.getState();
   const useAligned =
     vscode.workspace.getConfiguration("timeKeeper").get<boolean>("timesheetUseAlignedValues") === true;
-  const { totalMs, byDescription } = durationByDescriptionForLocalDay(state, ymd, Date.now(), {
-    useAlignedSpans: useAligned,
-  });
-  const distinct = [...byDescription.keys()].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
-  const body = buildTimesheetBody(ymd, totalMs, distinct);
+  const nowMs = Date.now();
+  const days = iterateInclusiveLocalYmds(startYmd, endYmd);
+  const sections = days
+    .map((ymd) => {
+      const { totalMs, byDescription } = durationByDescriptionForLocalDay(state, ymd, nowMs, {
+        useAlignedSpans: useAligned,
+      });
+      const descriptions = [...byDescription.keys()].sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" }),
+      );
+      return { ymd, totalMs, descriptions };
+    })
+    .filter((s) => s.totalMs > 0);
+  if (sections.length === 0) {
+    void vscode.window.showInformationMessage("No logged time in that date range.");
+    return;
+  }
+  const body = buildTimesheetBodyFromDayBlocks(sections);
   const doc = await vscode.workspace.openTextDocument({
     content: body,
     language: "plaintext",

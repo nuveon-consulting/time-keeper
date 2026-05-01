@@ -2,7 +2,7 @@
   "name": "nuveon-time-keeper",
   "displayName": "Nuveon Time Keeper",
   "description": "Low-friction time tracking for Cursor and VS Code.",
-  "version": "0.0.37",
+  "version": "1.0.0",
   "publisher": "NuveonConsultingPTYLTD",
   "license": "UNLICENSED",
   "icon": "media/logo.png",
@@ -97,7 +97,7 @@
         "timeKeeper.timesheetUseAlignedValues": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "When **true**, **Nuveon Time Keeper: Build timesheet text** counts overlap against each local calendar day using **aligned** start/duration (`alignedStart` + `alignedDurationMs`) when those fields exist; completed segments without alignment still use **raw** timestamps. **Running** segments always use raw `start` … now."
+          "markdownDescription": "When **true**, **Nuveon Time Keeper: Build timesheet text** counts overlap **per local calendar day** in the chosen **inclusive range** using **aligned** start/duration (`alignedStart` + `alignedDurationMs`) when those fields exist; completed segments without alignment still use **raw** timestamps. **Running** segments always use raw `start` … now."
         }
       }
     }
