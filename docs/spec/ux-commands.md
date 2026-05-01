@@ -38,7 +38,7 @@ Users may remap via Keyboard Shortcuts.
 ## Quick Pick flows
 
 1. **Start / switch:** recent descriptions (by last activity) + “New entry…” → `showInputBox` for a new description. Choosing a recent row **copies** that description text into a **new** task id for this segment.
-2. **Summary:** use **Open summary** for the webview grid and filters (see [architecture.md](architecture.md)).
+2. **Summary:** use **Open summary** for the webview grid and filters (see [architecture.md](architecture.md)). Each row can be **edited** (description and raw **start** / **end** for finished segments); duration and aligned columns are computed on save from those raw values and alignment settings.
 3. **Timesheet text:** **start date** (recent days + Other…) → **end date** with **Same as start** first (defaults single-day); Other… enforces end ≥ start. Output is **one summary block per day that has time** (`YYYY-MM-DD [hours]` with two significant figures, ceiling; blank line between days); zero-time days are skipped.
 
 ## Accessibility

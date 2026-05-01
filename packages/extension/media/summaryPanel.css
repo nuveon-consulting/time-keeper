@@ -130,3 +130,44 @@ tr:hover td {
 .actions button:hover {
   background: var(--vscode-button-hoverBackground);
 }
+
+.actions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.actions-stack button {
+  width: 100%;
+}
+
+.cell-input {
+  width: 100%;
+  max-width: 12.5rem;
+  box-sizing: border-box;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 2px;
+  padding: 4px 6px;
+  font-size: var(--vscode-font-size);
+}
+
+.cell-input-grow {
+  max-width: none;
+}
+
+.edit-error {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: var(--vscode-errorForeground);
+  background: var(--vscode-inputValidation-errorBackground);
+  border: 1px solid var(--vscode-inputValidation-errorBorder);
+  border-radius: 4px;
+}
+
+.edit-error.hidden {
+  display: none;
+}

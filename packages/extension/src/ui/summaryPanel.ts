@@ -1,6 +1,7 @@
 import * as path from "node:path";
 import * as os from "node:os";
 import * as vscode from "vscode";
+import type { UpdateSegmentPatch } from "../timer/timerEngine";
 import type { TimerService } from "../timer/timerService";
 import type { PersistedState } from "../types";
 import { timeEntryAlignedDurationMs, timeEntryDurationMs } from "../types";
@@ -135,7 +136,8 @@ function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
 </head>
 <body>
   <h1>Nuveon Time Keeper — Summary</h1>
-  <p class="hint">Times use your local timezone. Duration for a running segment updates when data refreshes (*). <strong>Aligned start / end / duration</strong> columns show stored grid-aligned values for finished segments when <strong>Alignment interval</strong> is enabled in settings; otherwise they show —.</p>
+  <p class="hint">Times use your local timezone. Duration for a running segment updates when data refreshes (*). <strong>Aligned start / end / duration</strong> columns show stored grid-aligned values for finished segments when <strong>Alignment interval</strong> is enabled in settings; otherwise they show —. Use <strong>Edit</strong> to change description and raw start/end; duration and aligned columns are computed when you save.</p>
+  <p id="editError" class="edit-error hidden" role="alert"></p>
   <div class="toolbar">
     <div class="row">
       <label for="fDesc">Description contains</label>
@@ -214,6 +216,7 @@ function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
         <th>Aligned end</th>
         <th>Aligned duration</th>
         <th>Description</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -229,6 +232,8 @@ export class SummaryPanelController implements vscode.Disposable {
   private serviceListener: vscode.Disposable | undefined;
   private webviewMessageListener: vscode.Disposable | undefined;
   private tick: ReturnType<typeof setInterval> | undefined;
+  /** Skips live refresh while the webview is editing a row (avoids destroying inputs). */
+  private summaryEditing = false;
 
   constructor(
     private readonly extensionUri: vscode.Uri,
@@ -257,7 +262,9 @@ export class SummaryPanelController implements vscode.Disposable {
       this.push();
     });
     this.tick = setInterval(() => {
-      this.push();
+      if (!this.summaryEditing) {
+        this.push();
+      }
     }, 1000);
     this.panel.onDidDispose(() => {
       if (this.tick !== undefined) {
@@ -277,7 +284,54 @@ export class SummaryPanelController implements vscode.Disposable {
     if (!msg || typeof msg !== "object") {
       return;
     }
-    const m = msg as { type?: string; rows?: unknown };
+    const m = msg as {
+      type?: string;
+      rows?: unknown;
+      entryId?: string;
+      description?: string;
+      startIso?: string;
+      endIso?: string | null;
+    };
+    if (m.type === "summaryEditBegin") {
+      this.summaryEditing = true;
+      return;
+    }
+    if (m.type === "summaryEditEnd") {
+      this.summaryEditing = false;
+      this.push();
+      return;
+    }
+    if (m.type === "updateSegment") {
+      if (!this.panel) {
+        return;
+      }
+      const entryId = typeof m.entryId === "string" ? m.entryId : "";
+      if (!entryId) {
+        void this.panel.webview.postMessage({
+          type: "updateSegmentResult",
+          ok: false,
+          reason: "Missing segment id.",
+        });
+        return;
+      }
+      const patch: UpdateSegmentPatch = {};
+      if (typeof m.description === "string") {
+        patch.description = m.description;
+      }
+      if (typeof m.startIso === "string") {
+        patch.startIso = m.startIso;
+      }
+      if (m.endIso !== undefined) {
+        patch.endIso = m.endIso;
+      }
+      const result = await this.service.updateSegment(entryId, patch);
+      void this.panel.webview.postMessage({
+        type: "updateSegmentResult",
+        ok: result.ok,
+        reason: result.ok ? undefined : result.reason,
+      });
+      return;
+    }
     if (m.type !== "exportCsv") {
       return;
     }
@@ -294,7 +348,7 @@ export class SummaryPanelController implements vscode.Disposable {
   }
 
   private push(): void {
-    if (!this.panel) {
+    if (!this.panel || this.summaryEditing) {
       return;
     }
     void this.panel.webview.postMessage({
@@ -308,6 +362,7 @@ export class SummaryPanelController implements vscode.Disposable {
       clearInterval(this.tick);
       this.tick = undefined;
     }
+    this.summaryEditing = false;
     this.webviewMessageListener?.dispose();
     this.webviewMessageListener = undefined;
     this.serviceListener?.dispose();

@@ -16,6 +16,19 @@ function nowIso(): string {
 /**
  * Timer state machine + persistence without VS Code APIs (shared by `TimerService` and the stdio MCP entry).
  */
+export type UpdateSegmentPatch = {
+  /** Non-empty after trim; updates the task row for this segment. */
+  description?: string;
+  /** ISO-8601 UTC wall time */
+  startIso?: string;
+  /** ISO-8601 UTC; omit when not changing. Running segments must keep `end` null. */
+  endIso?: string | null;
+};
+
+export type UpdateSegmentResult =
+  | { ok: true }
+  | { ok: false; reason: string };
+
 export class TimerEngine {
   private state: PersistedState;
 
@@ -112,6 +125,79 @@ export class TimerEngine {
     this.appendRunningSegment(description);
     await this.persist();
     return true;
+  }
+
+  /**
+   * Updates raw fields on a segment. Duration and aligned columns are derived on save (alignment
+   * settings apply to finished segments only).
+   */
+  async updateSegment(entryId: string, patch: UpdateSegmentPatch): Promise<UpdateSegmentResult> {
+    const entry = this.state.entries.find((e) => e.id === entryId);
+    if (!entry) {
+      return { ok: false, reason: "Segment not found." };
+    }
+    const task = this.state.tasks[entry.taskId];
+    if (!task) {
+      return { ok: false, reason: "Task not found." };
+    }
+
+    const running = entry.end === null;
+
+    if (patch.description !== undefined) {
+      const trimmed = patch.description.trim();
+      if (!trimmed) {
+        return { ok: false, reason: "Description cannot be empty." };
+      }
+      task.description = trimmed;
+    }
+
+    let nextStart = entry.start;
+    if (patch.startIso !== undefined) {
+      const startMs = Date.parse(patch.startIso);
+      if (!Number.isFinite(startMs)) {
+        return { ok: false, reason: "Invalid start time." };
+      }
+      nextStart = new Date(startMs).toISOString();
+    }
+
+    let nextEnd: string | null = entry.end;
+    if (patch.endIso !== undefined) {
+      if (running) {
+        return { ok: false, reason: "Cannot set end time while the segment is running." };
+      }
+      if (patch.endIso === null) {
+        return { ok: false, reason: "End time is required for a completed segment." };
+      }
+      const endMs = Date.parse(patch.endIso);
+      if (!Number.isFinite(endMs)) {
+        return { ok: false, reason: "Invalid end time." };
+      }
+      nextEnd = new Date(endMs).toISOString();
+    }
+
+    const startMs = Date.parse(nextStart);
+    const endMs = nextEnd === null ? NaN : Date.parse(nextEnd);
+    if (!Number.isFinite(startMs)) {
+      return { ok: false, reason: "Invalid start time." };
+    }
+    if (running) {
+      entry.start = nextStart;
+      delete entry.alignedStart;
+      delete entry.alignedDurationMs;
+      await this.persist();
+      return { ok: true };
+    }
+    if (!Number.isFinite(endMs)) {
+      return { ok: false, reason: "Invalid end time." };
+    }
+    if (endMs < startMs) {
+      return { ok: false, reason: "End time must be on or after start time." };
+    }
+    entry.start = nextStart;
+    entry.end = nextEnd;
+    this.applyAlignmentToCompleted(entry);
+    await this.persist();
+    return { ok: true };
   }
 
   private async closeActiveIfAny(): Promise<void> {

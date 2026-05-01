@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import type { JsonlStore } from "../storage/jsonlStore";
 import { emptyState, type LastStoppedTask, type PersistedState, type Task, type TimeEntry } from "../types";
-import { TimerEngine } from "./timerEngine";
+import { TimerEngine, type UpdateSegmentPatch, type UpdateSegmentResult } from "./timerEngine";
 
 export class TimerService implements vscode.Disposable {
   private readonly engine: TimerEngine;
@@ -59,6 +59,10 @@ export class TimerService implements vscode.Disposable {
 
   async resumePrevious(): Promise<boolean> {
     return this.engine.resumePrevious();
+  }
+
+  async updateSegment(entryId: string, patch: UpdateSegmentPatch): Promise<UpdateSegmentResult> {
+    return this.engine.updateSegment(entryId, patch);
   }
 
   /** Sync in-memory state from disk when another process (e.g. MCP stdio) updates the ledger. */
